@@ -111,6 +111,7 @@ $weeklyStory = $pdo->query("
     <h1>📊 Michael's IEP Dashboard</h1>
     <p>Real-time progress tracking · Generated <?= date("F j, Y g:i A") ?></p>
   </div>
+  <a href="https://jaloza.com/michael/" style="color:white;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-decoration:none;opacity:0.85;">← Home</a>
 </div>
 
 <div class="export-bar">
