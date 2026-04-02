@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Story Time">
+<title>Story Time</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #FFF8F0; font-family: 'Nunito', sans-serif; overflow-x: hidden; }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  #app { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .logo { font-size: 24px; font-weight: 900; color: #5B8DEF; }
+  .token-pill { display: flex; align-items: center; gap: 8px; background: #FFF3CD; padding: 8px 18px; border-radius: 40px; border: 2px solid #FFD166; }
+  .token-pill strong { font-size: 17px; color: #7A5C00; }
+  .token-board { background: white; border-radius: 24px; border: 3px solid #E8EEF8; padding: 18px 22px; margin-bottom: 20px; }
+  .token-board-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .token-board-label { font-size: 16px; font-weight: 800; color: #6B7280; }
+  .token-board-msg { font-size: 16px; font-weight: 800; color: #5B8DEF; }
+  .token-circles { display: flex; gap: 14px; justify-content: center; }
+  .token-circle { width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; transition: all 0.35s; }
+  .token-circle.empty { background: #F1EFE8; border: 4px solid #D3D1C7; }
+  .token-circle.filled { background: #FFD166; border: 4px solid #F5A623; box-shadow: 0 4px 12px rgba(245,166,35,0.45); transform: scale(1.08); }
+  .card { background: white; border-radius: 24px; border: 3px solid #E8EEF8; padding: 28px; margin-bottom: 20px; }
+  .big-btn { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 800; padding: 20px 52px; border-radius: 60px; border: none; cursor: pointer; min-height: 70px; touch-action: manipulation; color: white; }
+  .big-btn.blue { background: #5B8DEF; box-shadow: 0 6px 0 #3a6abf; }
+  .big-btn.green { background: #06D6A0; box-shadow: 0 6px 0 #04a07a; }
+  .big-btn.purple { background: #7B5EA7; box-shadow: 0 5px 0 #5a4180; }
+  .full-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .choice-btn { border-radius: 20px; padding: 20px 14px; font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 700; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; min-height: 110px; touch-action: manipulation; border: 3px solid #DDE3F0; background: white; color: #2D2D2D; }
+  .choice-btn .emoji { font-size: 44px; }
+  .choice-btn.correct { background: #ECFDF5; border-color: #06D6A0; color: #065F46; }
+  .choice-btn.wrong { background: #FFF1F2; border-color: #EF476F; color: #9F1239; }
+  .choice-btn:disabled { cursor: default; }
+  .feedback { border-radius: 20px; padding: 18px 20px; font-size: 20px; font-weight: 800; text-align: center; margin-top: 16px; display: none; }
+  .feedback.correct { background: #ECFDF5; color: #065F46; }
+  .feedback.wrong { background: #FFF1F2; color: #9F1239; }
+  .next-btn { width: 100%; margin-top: 16px; background: #5B8DEF; color: white; font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 800; padding: 18px; border-radius: 60px; border: none; cursor: pointer; box-shadow: 0 5px 0 #3a6abf; min-height: 64px; touch-action: manipulation; display: none; }
+  .type-badge { display: inline-block; font-size: 15px; font-weight: 800; padding: 6px 18px; border-radius: 24px; margin-bottom: 14px; }
+  .badge-WHO { background: #EEF2FF; color: #4338CA; }
+  .badge-WHAT { background: #FEF3C7; color: #92400E; }
+  .badge-WHEN { background: #ECFDF5; color: #065F46; }
+  .badge-WHERE { background: #FFF1F2; color: #9F1239; }
+  .badge-HOW { background: #F5F3FF; color: #5B21B6; }
+  .q-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+  .q-dot { width: 16px; height: 16px; border-radius: 50%; background: #DDE3F0; transition: background 0.3s; }
+  .q-dot.done { background: #06D6A0; }
+  .q-dot.current { background: #5B8DEF; }
+  .story-text { font-size: 21px; line-height: 1.9; color: #2D2D2D; background: #F7F9FF; border-radius: 16px; padding: 20px 24px; }
+  .story-text b { color: #5B8DEF; }
+  .progress-bar-bg { width: 100%; max-width: 340px; margin: 0 auto 24px; height: 18px; background: #DDE3F0; border-radius: 9px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: #06D6A0; border-radius: 9px; transition: width 1s ease-out; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .bounce { animation: bounce 2s infinite; display: inline-block; }
+  .burst { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 120px; z-index: 9999; animation: burst 0.8s ease-out forwards; }
+  .stories-progress { font-size: 15px; color: #9CA3AF; font-weight: 700; margin-bottom: 20px; text-align: center; }
+  .all-done-banner { background: #EEF2FF; border-radius: 16px; padding: 14px 18px; margin-bottom: 20px; font-size: 18px; font-weight: 800; color: #4338CA; text-align: center; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  @keyframes burst { 0%{opacity:1;transform:scale(0.5)} 60%{opacity:1;transform:scale(1.3)} 100%{opacity:0;transform:scale(1.8)} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div class="logo">📚 Story Time</div>
+    <div class="token-pill"><span style="font-size:20px">⭐</span><strong id="token-count">0/5</strong></div>
+  </div>
+
+  <!-- WELCOME -->
+  <div id="screen-welcome" class="screen active" style="text-align:center;padding-top:12px;">
+    <div class="bounce" style="font-size:96px;margin-bottom:16px;">📖</div>
+    <div style="font-size:36px;font-weight:900;color:#5B8DEF;margin-bottom:8px;">Hi Michael!</div>
+    <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:6px;">Read stories. Earn tokens. Watch a video!</div>
+    <div style="font-size:17px;color:#9CA3AF;font-weight:600;margin-bottom:28px;">Answer 1 question = 1 ⭐ · Fill 5 stars = 🎬 video!</div>
+    <div id="welcome-token-board"></div>
+    <div id="all-done-banner" class="all-done-banner" style="display:none;">🎉 You read ALL 52 stories! Shuffling them again!</div>
+    <div id="stories-progress" class="stories-progress"></div>
+    <button class="big-btn blue" onclick="startStory()">Let's Go! 🚀</button>
+  </div>
+
+  <!-- STORY -->
+  <div id="screen-story" class="screen">
+    <div id="story-token-board"></div>
+    <div class="card">
+      <div id="story-emoji" style="font-size:72px;text-align:center;margin-bottom:12px;"></div>
+      <div id="story-title" style="font-size:26px;font-weight:900;color:#5B8DEF;text-align:center;margin-bottom:16px;"></div>
+      <div id="story-text" class="story-text"></div>
+    </div>
+    <button class="big-btn purple full-btn" onclick="goToQuestions()">🎯 Ready for Questions!</button>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div id="screen-questions" class="screen">
+    <div id="q-token-board"></div>
+    <div class="q-dots" id="q-dots"></div>
+    <div class="card">
+      <div id="q-badge" class="type-badge"></div>
+      <div id="q-text" style="font-size:24px;font-weight:800;color:#2D2D2D;margin-bottom:20px;line-height:1.3;"></div>
+      <div class="choice-grid" id="choice-grid"></div>
+      <div id="feedback" class="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()"></button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen" style="text-align:center;padding-top:12px;">
+    <div id="result-emoji" style="font-size:100px;margin-bottom:14px;animation:bounce 1s ease-out;display:inline-block;"></div>
+    <div id="result-title" style="font-size:32px;font-weight:900;margin-bottom:8px;"></div>
+    <div id="result-score" style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:24px;"></div>
+    <div class="progress-bar-bg"><div id="result-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+    <div id="result-token-board"></div>
+    <button class="big-btn green" onclick="startStory()">Read Another Story! 📚</button>
+  </div>
+
+  <!-- REWARD -->
+  <div id="screen-reward" class="screen" style="text-align:center;padding-top:10px;">
+    <div style="font-size:100px;margin-bottom:10px;">🎬</div>
+    <div style="font-size:36px;font-weight:900;color:#5B8DEF;margin-bottom:8px;">You earned a video!</div>
+    <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:28px;">Awesome work, Michael! 🎉</div>
+    <div id="reward-stars" style="display:flex;gap:14px;justify-content:center;margin-bottom:28px;"></div>
+    <div style="background:#F0F5FF;border-radius:22px;padding:24px 28px;margin-bottom:28px;">
+      <div style="font-size:16px;color:#6B7280;font-weight:600;margin-bottom:6px;">Your video reward:</div>
+      <div id="yt-label" style="font-size:20px;font-weight:800;color:#2D2D2D;margin-bottom:18px;"></div>
+      <button onclick="openYouTube()" style="width:100%;background:#FF0000;color:white;font-family:'Nunito',sans-serif;font-size:24px;font-weight:800;padding:18px;border-radius:60px;border:none;cursor:pointer;box-shadow:0 5px 0 #b00000;min-height:70px;touch-action:manipulation;">▶ Watch on YouTube!</button>
+      <div style="font-size:13px;color:#9CA3AF;margin-top:10px;" id="yt-hint"></div>
+    </div>
+    <button class="big-btn blue" style="width:100%;" onclick="resetTokens();showScreen('welcome')">Keep Reading! 📚</button>
+  </div>
+</div>
+
+<script>
+const STORIES = [
+  {title:"Leo Goes to the Park",e:"🦁",story:"<b>Leo</b> is a little lion who loves the park. He went to the park on a sunny Monday morning. He played on the swings and ran through the grass. When he got tired, he sat under a big tree. He felt happy because he made a new friend named Zara.",questions:[{type:"WHO",q:"Who is the story about?",choices:[{e:"🦁",l:"Leo the lion",c:true},{e:"🐻",l:"A bear",c:false},{e:"🐸",l:"A frog",c:false},{e:"🦊",l:"A fox",c:false}]},{type:"WHAT",q:"What did Leo do at the park?",choices:[{e:"🛝",l:"Played on swings",c:true},{e:"🏊",l:"Went swimming",c:false},{e:"🎨",l:"Drew pictures",c:false},{e:"🍕",l:"Ate pizza",c:false}]},{type:"WHEN",q:"When did Leo go to the park?",choices:[{e:"🌅",l:"Monday morning",c:true},{e:"🌙",l:"At night",c:false},{e:"🌧️",l:"A rainy day",c:false},{e:"❄️",l:"In the winter",c:false}]},{type:"WHERE",q:"Where did Leo sit when tired?",choices:[{e:"🌳",l:"Under a tree",c:true},{e:"🏠",l:"In a house",c:false},{e:"🪑",l:"On a bench",c:false},{e:"🏕️",l:"In a tent",c:false}]},{type:"HOW",q:"How did Leo feel at the end?",choices:[{e:"😊",l:"Happy",c:true},{e:"😢",l:"Sad",c:false},{e:"😴",l:"Sleepy",c:false},{e:"😠",l:"Angry",c:false}]}]},
+  {title:"Mia Bakes Cookies",e:"🍪",story:"<b>Mia</b> is a girl who loves to bake. One Saturday afternoon, she baked chocolate chip cookies in her kitchen. She mixed the dough, added lots of chips, and put them in the oven. The cookies smelled amazing! She shared them with her little brother Max.",questions:[{type:"WHO",q:"Who baked the cookies?",choices:[{e:"👧",l:"Mia",c:true},{e:"👦",l:"Max",c:false},{e:"👩",l:"Her mom",c:false},{e:"👴",l:"Her grandpa",c:false}]},{type:"WHAT",q:"What did Mia bake?",choices:[{e:"🍪",l:"Cookies",c:true},{e:"🎂",l:"A cake",c:false},{e:"🥧",l:"A pie",c:false},{e:"🧁",l:"Cupcakes",c:false}]},{type:"WHEN",q:"When did Mia bake?",choices:[{e:"🌤️",l:"Saturday afternoon",c:true},{e:"🌙",l:"Friday night",c:false},{e:"🌅",l:"Sunday morning",c:false},{e:"🏫",l:"After school",c:false}]},{type:"WHERE",q:"Where did Mia bake?",choices:[{e:"🍳",l:"In the kitchen",c:true},{e:"🏫",l:"At school",c:false},{e:"🌳",l:"Outside",c:false},{e:"🛒",l:"At a store",c:false}]},{type:"HOW",q:"How did the cookies smell?",choices:[{e:"😍",l:"Amazing",c:true},{e:"🤢",l:"Bad",c:false},{e:"🌸",l:"Like flowers",c:false},{e:"❓",l:"No smell",c:false}]}]},
+  {title:"Rex Finds a Bone",e:"🐕",story:"<b>Rex</b> is a funny brown dog. He was digging in the backyard on a warm afternoon. He found a big shiny bone buried deep in the dirt! Rex wagged his tail and jumped up and down. He buried the bone again to save it for later.",questions:[{type:"WHO",q:"Who is Rex?",choices:[{e:"🐕",l:"A brown dog",c:true},{e:"🐈",l:"A cat",c:false},{e:"🐇",l:"A rabbit",c:false},{e:"🦔",l:"A hedgehog",c:false}]},{type:"WHAT",q:"What did Rex find?",choices:[{e:"🦴",l:"A big bone",c:true},{e:"🎾",l:"A tennis ball",c:false},{e:"💎",l:"A diamond",c:false},{e:"🪙",l:"A coin",c:false}]},{type:"WHEN",q:"When was Rex digging?",choices:[{e:"☀️",l:"Warm afternoon",c:true},{e:"🌙",l:"At night",c:false},{e:"🌧️",l:"In the rain",c:false},{e:"❄️",l:"In the snow",c:false}]},{type:"WHERE",q:"Where was Rex digging?",choices:[{e:"🌿",l:"The backyard",c:true},{e:"🏖️",l:"The beach",c:false},{e:"🏕️",l:"The woods",c:false},{e:"🏫",l:"At school",c:false}]},{type:"HOW",q:"How did Rex show he was happy?",choices:[{e:"🐕",l:"Wagged his tail",c:true},{e:"😴",l:"Fell asleep",c:false},{e:"🏃",l:"Ran away",c:false},{e:"🍖",l:"Ate the bone",c:false}]}]},
+  {title:"Sam Sees a Rainbow",e:"🌈",story:"<b>Sam</b> was looking out the window after a big rainstorm. He saw a huge colorful rainbow in the sky! The rainbow had red, orange, yellow, green, blue, and purple colors. Sam ran outside to see it better. He pointed at it and yelled, 'Wow, so beautiful!'",questions:[{type:"WHO",q:"Who saw the rainbow?",choices:[{e:"👦",l:"Sam",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What did Sam see in the sky?",choices:[{e:"🌈",l:"A rainbow",c:true},{e:"⭐",l:"A shooting star",c:false},{e:"🌤️",l:"A cloud",c:false},{e:"🦅",l:"A big bird",c:false}]},{type:"WHEN",q:"When did Sam see the rainbow?",choices:[{e:"🌧️",l:"After the rainstorm",c:true},{e:"🌙",l:"At nighttime",c:false},{e:"❄️",l:"During winter",c:false},{e:"🌅",l:"At sunrise",c:false}]},{type:"WHERE",q:"Where was Sam when he first saw it?",choices:[{e:"🪟",l:"At the window",c:true},{e:"🏫",l:"At school",c:false},{e:"🛒",l:"At the store",c:false},{e:"🌳",l:"In the park",c:false}]},{type:"HOW",q:"How did Sam react?",choices:[{e:"😮",l:"Yelled 'Wow!'",c:true},{e:"😴",l:"Fell asleep",c:false},{e:"😢",l:"Started crying",c:false},{e:"📺",l:"Watched TV",c:false}]}]},
+  {title:"Zara Visits the Zoo",e:"🦒",story:"<b>Zara</b> went to the zoo with her dad on a Friday. She saw tall giraffes, roaring lions, and funny monkeys. Her favorite animal was the elephant because it sprayed water from its trunk! They ate ice cream before going home. Zara said it was the best day ever.",questions:[{type:"WHO",q:"Who went to the zoo?",choices:[{e:"👧",l:"Zara",c:true},{e:"👦",l:"Her brother",c:false},{e:"👩",l:"Her mom",c:false},{e:"👨‍🏫",l:"Her teacher",c:false}]},{type:"WHAT",q:"What was Zara's favorite animal?",choices:[{e:"🐘",l:"The elephant",c:true},{e:"🦒",l:"The giraffe",c:false},{e:"🦁",l:"The lion",c:false},{e:"🐒",l:"The monkey",c:false}]},{type:"WHEN",q:"When did Zara visit?",choices:[{e:"📅",l:"On a Friday",c:true},{e:"📅",l:"On Monday",c:false},{e:"📅",l:"On Sunday",c:false},{e:"📅",l:"On Wednesday",c:false}]},{type:"WHERE",q:"Where did they eat ice cream?",choices:[{e:"🦒",l:"At the zoo",c:true},{e:"🏠",l:"At home",c:false},{e:"🏫",l:"At school",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"HOW",q:"How did the elephant spray water?",choices:[{e:"🐘",l:"With its trunk",c:true},{e:"💦",l:"With its feet",c:false},{e:"👂",l:"With its ears",c:false},{e:"🦷",l:"With its mouth",c:false}]}]},
+  {title:"Pip Flies a Kite",e:"🪁",story:"<b>Pip</b> is a little penguin who wanted to fly a kite. On a windy Wednesday, she went to the hill near her house. She held the kite string tightly and ran as fast as she could. The kite went up, up, up into the blue sky! Pip laughed and danced because she did it all by herself.",questions:[{type:"WHO",q:"Who flew the kite?",choices:[{e:"🐧",l:"Pip the penguin",c:true},{e:"🦆",l:"A duck",c:false},{e:"🦜",l:"A parrot",c:false},{e:"🐦",l:"A sparrow",c:false}]},{type:"WHAT",q:"What did Pip fly?",choices:[{e:"🪁",l:"A kite",c:true},{e:"🛩️",l:"A plane",c:false},{e:"🎈",l:"A balloon",c:false},{e:"🚁",l:"A helicopter",c:false}]},{type:"WHEN",q:"When did Pip fly the kite?",choices:[{e:"💨",l:"Windy Wednesday",c:true},{e:"☀️",l:"Sunny Sunday",c:false},{e:"🌧️",l:"Rainy Tuesday",c:false},{e:"❄️",l:"Snowy Friday",c:false}]},{type:"WHERE",q:"Where did Pip fly her kite?",choices:[{e:"⛰️",l:"On a hill",c:true},{e:"🏖️",l:"At the beach",c:false},{e:"🌳",l:"In the forest",c:false},{e:"🏫",l:"At school",c:false}]},{type:"HOW",q:"How did Pip feel when the kite went up?",choices:[{e:"😂",l:"Laughed and danced",c:true},{e:"😢",l:"She cried",c:false},{e:"😴",l:"Fell asleep",c:false},{e:"😠",l:"Got angry",c:false}]}]},
+  {title:"Benny Builds a Robot",e:"🤖",story:"<b>Benny</b> loved building things. One rainy Tuesday, he sat at his desk and built a little robot from cardboard boxes. He gave it button eyes and a tin foil hat. When he was done, he pressed a red button on its chest. The robot lit up and beeped three times!",questions:[{type:"WHO",q:"Who built the robot?",choices:[{e:"👦",l:"Benny",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What did Benny build?",choices:[{e:"🤖",l:"A robot",c:true},{e:"🚀",l:"A rocket",c:false},{e:"🏠",l:"A house",c:false},{e:"🚗",l:"A car",c:false}]},{type:"WHEN",q:"When did Benny build it?",choices:[{e:"🌧️",l:"Rainy Tuesday",c:true},{e:"☀️",l:"Sunny Friday",c:false},{e:"🌙",l:"At night",c:false},{e:"❄️",l:"Snowy Monday",c:false}]},{type:"WHERE",q:"Where did Benny build it?",choices:[{e:"🪑",l:"At his desk",c:true},{e:"🌳",l:"Outside",c:false},{e:"🏫",l:"At school",c:false},{e:"🛁",l:"In the bathroom",c:false}]},{type:"HOW",q:"How did the robot react?",choices:[{e:"💡",l:"Lit up and beeped",c:true},{e:"🏃",l:"Ran away",c:false},{e:"💤",l:"Fell asleep",c:false},{e:"💥",l:"Exploded",c:false}]}]},
+  {title:"Nina Finds a Puppy",e:"🐶",story:"<b>Nina</b> was walking home from school on a Thursday. She heard a tiny whimper near the bushes. She looked and found a small fluffy puppy sitting all alone! Nina picked it up and carried it home. Her mom said they could keep it, and Nina named it Biscuit.",questions:[{type:"WHO",q:"Who found the puppy?",choices:[{e:"👧",l:"Nina",c:true},{e:"👦",l:"Her brother",c:false},{e:"👩",l:"Her mom",c:false},{e:"👮",l:"A police officer",c:false}]},{type:"WHAT",q:"What did Nina find?",choices:[{e:"🐶",l:"A fluffy puppy",c:true},{e:"🐱",l:"A kitten",c:false},{e:"🐇",l:"A rabbit",c:false},{e:"🐦",l:"A bird",c:false}]},{type:"WHEN",q:"When did Nina find the puppy?",choices:[{e:"🏫",l:"Walking home Thursday",c:true},{e:"🌙",l:"Late at night",c:false},{e:"🌅",l:"Early morning",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"WHERE",q:"Where was the puppy hiding?",choices:[{e:"🌿",l:"Near the bushes",c:true},{e:"🌳",l:"Up a tree",c:false},{e:"🏠",l:"In a house",c:false},{e:"🚗",l:"In a car",c:false}]},{type:"HOW",q:"What did Nina name the puppy?",choices:[{e:"🍪",l:"Biscuit",c:true},{e:"⭐",l:"Star",c:false},{e:"🌈",l:"Rainbow",c:false},{e:"🎾",l:"Buddy",c:false}]}]},
+  {title:"Carlos and the Big Wave",e:"🌊",story:"<b>Carlos</b> went to the beach with his family on a hot Sunday. He wore his blue swimsuit and splashed in the waves. A big wave came and knocked him down! He got up, laughed, and ran back in for more. It was the most fun he had ever had at the beach.",questions:[{type:"WHO",q:"Who went to the beach?",choices:[{e:"👦",l:"Carlos",c:true},{e:"👧",l:"His sister",c:false},{e:"👴",l:"His grandpa",c:false},{e:"👮",l:"A lifeguard",c:false}]},{type:"WHAT",q:"What knocked Carlos down?",choices:[{e:"🌊",l:"A big wave",c:true},{e:"🐟",l:"A fish",c:false},{e:"🏐",l:"A beach ball",c:false},{e:"💨",l:"The wind",c:false}]},{type:"WHEN",q:"When did Carlos go to the beach?",choices:[{e:"☀️",l:"Hot Sunday",c:true},{e:"🌧️",l:"Rainy Monday",c:false},{e:"❄️",l:"Cold Friday",c:false},{e:"🌙",l:"At night",c:false}]},{type:"WHERE",q:"Where did Carlos play?",choices:[{e:"🌊",l:"In the waves",c:true},{e:"🏕️",l:"In a tent",c:false},{e:"🌳",l:"In the forest",c:false},{e:"🏫",l:"At school",c:false}]},{type:"HOW",q:"How did Carlos react after falling?",choices:[{e:"😂",l:"Laughed and ran back",c:true},{e:"😢",l:"Started crying",c:false},{e:"🏃",l:"Ran home",c:false},{e:"😴",l:"Fell asleep",c:false}]}]},
+  {title:"Luna the Space Cat",e:"🚀",story:"<b>Luna</b> is a brave cat who lives on a spaceship. One night, she floated past the moon and saw it up close. The moon was round and full of craters! Luna touched the moon with her paw and smiled. She took a moon rock home as a souvenir.",questions:[{type:"WHO",q:"Who is Luna?",choices:[{e:"🐱",l:"A brave cat",c:true},{e:"🐶",l:"A dog",c:false},{e:"🐰",l:"A rabbit",c:false},{e:"🐭",l:"A mouse",c:false}]},{type:"WHAT",q:"What did Luna see up close?",choices:[{e:"🌕",l:"The moon",c:true},{e:"⭐",l:"A star",c:false},{e:"🪐",l:"A planet",c:false},{e:"☀️",l:"The sun",c:false}]},{type:"WHEN",q:"When did Luna float past the moon?",choices:[{e:"🌙",l:"At night",c:true},{e:"☀️",l:"In the morning",c:false},{e:"🌅",l:"At sunset",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where does Luna live?",choices:[{e:"🚀",l:"On a spaceship",c:true},{e:"🏠",l:"In a house",c:false},{e:"🌳",l:"In a tree",c:false},{e:"🏖️",l:"At the beach",c:false}]},{type:"HOW",q:"What did Luna bring home?",choices:[{e:"🪨",l:"A moon rock",c:true},{e:"⭐",l:"A star",c:false},{e:"🌙",l:"The moon",c:false},{e:"🍪",l:"A cookie",c:false}]}]},
+  {title:"Tomas Learns to Ride",e:"🚲",story:"<b>Tomas</b> got a red bike for his birthday. He tried to ride it but kept falling down. His dad ran beside him and held the seat. On his fifth try, Tomas rode all by himself! He zoomed down the sidewalk with a huge smile on his face.",questions:[{type:"WHO",q:"Who got a new bike?",choices:[{e:"👦",l:"Tomas",c:true},{e:"👧",l:"His sister",c:false},{e:"👴",l:"His grandpa",c:false},{e:"👩",l:"His mom",c:false}]},{type:"WHAT",q:"What color was the bike?",choices:[{e:"🔴",l:"Red",c:true},{e:"🔵",l:"Blue",c:false},{e:"🟡",l:"Yellow",c:false},{e:"🟢",l:"Green",c:false}]},{type:"WHEN",q:"When did Tomas ride by himself?",choices:[{e:"5️⃣",l:"On his fifth try",c:true},{e:"1️⃣",l:"First try",c:false},{e:"🌙",l:"At night",c:false},{e:"🏫",l:"At school",c:false}]},{type:"WHERE",q:"Where did Tomas zoom?",choices:[{e:"🛣️",l:"Down the sidewalk",c:true},{e:"🏖️",l:"At the beach",c:false},{e:"🏫",l:"At school",c:false},{e:"🌳",l:"In the forest",c:false}]},{type:"HOW",q:"How did Tomas feel riding alone?",choices:[{e:"😁",l:"Huge smile",c:true},{e:"😢",l:"Sad",c:false},{e:"😠",l:"Angry",c:false},{e:"😴",l:"Sleepy",c:false}]}]},
+  {title:"Ella and the Magic Paintbrush",e:"🎨",story:"<b>Ella</b> found a glowing paintbrush under her bed one morning. Whatever she painted came to life! She painted a butterfly and it flew around the room. She painted a fish and it swam through the air. Ella decided to paint a rainbow over her whole house.",questions:[{type:"WHO",q:"Who found the paintbrush?",choices:[{e:"👧",l:"Ella",c:true},{e:"👦",l:"Her brother",c:false},{e:"👩",l:"Her mom",c:false},{e:"🧙",l:"A wizard",c:false}]},{type:"WHAT",q:"What did the paintbrush do?",choices:[{e:"✨",l:"Made things come alive",c:true},{e:"🎵",l:"Played music",c:false},{e:"💡",l:"Glowed in the dark",c:false},{e:"🏃",l:"Ran away",c:false}]},{type:"WHEN",q:"When did Ella find the paintbrush?",choices:[{e:"🌅",l:"One morning",c:true},{e:"🌙",l:"At night",c:false},{e:"🏫",l:"At school",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where did Ella find the paintbrush?",choices:[{e:"🛏️",l:"Under her bed",c:true},{e:"🌳",l:"Under a tree",c:false},{e:"🏫",l:"At school",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"HOW",q:"What did Ella paint last?",choices:[{e:"🌈",l:"A rainbow",c:true},{e:"🦋",l:"A butterfly",c:false},{e:"🐟",l:"A fish",c:false},{e:"⭐",l:"A star",c:false}]}]},
+  {title:"Max and the Thunderstorm",e:"⛈️",story:"<b>Max</b> was scared of thunder. One stormy Wednesday night, a loud boom woke him up. He hid under his blanket and shook. His dog Pepper jumped on the bed and licked his face. Max felt safe with Pepper beside him and fell back to sleep.",questions:[{type:"WHO",q:"Who was scared of thunder?",choices:[{e:"👦",l:"Max",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What woke Max up?",choices:[{e:"💥",l:"A loud boom of thunder",c:true},{e:"🌞",l:"The sunshine",c:false},{e:"🐓",l:"A rooster",c:false},{e:"📱",l:"His phone",c:false}]},{type:"WHEN",q:"When did the storm happen?",choices:[{e:"🌙",l:"Wednesday night",c:true},{e:"🌅",l:"Morning",c:false},{e:"🏫",l:"During school",c:false},{e:"☀️",l:"Sunny afternoon",c:false}]},{type:"WHERE",q:"Where did Max hide?",choices:[{e:"🛏️",l:"Under his blanket",c:true},{e:"🚪",l:"Behind the door",c:false},{e:"🛁",l:"In the bathtub",c:false},{e:"🌳",l:"Under a tree",c:false}]},{type:"HOW",q:"How did Pepper help Max?",choices:[{e:"🐕",l:"Jumped up and licked him",c:true},{e:"🎵",l:"Sang a song",c:false},{e:"💡",l:"Turned on the lights",c:false},{e:"🏃",l:"Ran away",c:false}]}]},
+  {title:"Sofia Plants a Seed",e:"🌱",story:"<b>Sofia</b> planted a tiny seed in a pot on a spring morning. Every day she watered it and put it in the sun. After two weeks, a little green shoot poked out of the dirt! Sofia was so excited she jumped up and down. The plant grew into a beautiful sunflower.",questions:[{type:"WHO",q:"Who planted the seed?",choices:[{e:"👧",l:"Sofia",c:true},{e:"👦",l:"Her brother",c:false},{e:"👴",l:"Her grandpa",c:false},{e:"👩",l:"Her mom",c:false}]},{type:"WHAT",q:"What did Sofia plant?",choices:[{e:"🌱",l:"A tiny seed",c:true},{e:"🌳",l:"A big tree",c:false},{e:"🍎",l:"An apple",c:false},{e:"🌹",l:"A rose",c:false}]},{type:"WHEN",q:"When did Sofia plant the seed?",choices:[{e:"🌸",l:"Spring morning",c:true},{e:"❄️",l:"Winter night",c:false},{e:"🍂",l:"Fall afternoon",c:false},{e:"☀️",l:"Summer evening",c:false}]},{type:"WHERE",q:"Where did Sofia put the pot?",choices:[{e:"☀️",l:"In the sun",c:true},{e:"🌙",l:"In the dark",c:false},{e:"🛁",l:"In the bathroom",c:false},{e:"🚗",l:"In the car",c:false}]},{type:"HOW",q:"What did the seed grow into?",choices:[{e:"🌻",l:"A sunflower",c:true},{e:"🌹",l:"A rose",c:false},{e:"🌳",l:"A big tree",c:false},{e:"🌵",l:"A cactus",c:false}]}]},
+  {title:"Jake and the Lost Shoe",e:"👟",story:"<b>Jake</b> woke up late for school on Monday and could not find his left shoe. He looked under the bed, in the closet, and behind the sofa. Finally, his little sister pointed to the dog's basket. There was the shoe inside it! Their dog Bruno had taken it as a pillow.",questions:[{type:"WHO",q:"Who could not find his shoe?",choices:[{e:"👦",l:"Jake",c:true},{e:"👧",l:"His sister",c:false},{e:"🐕",l:"Bruno the dog",c:false},{e:"👩",l:"His mom",c:false}]},{type:"WHAT",q:"What was missing?",choices:[{e:"👟",l:"His left shoe",c:true},{e:"🎒",l:"His backpack",c:false},{e:"📚",l:"His books",c:false},{e:"🧢",l:"His hat",c:false}]},{type:"WHEN",q:"When did this happen?",choices:[{e:"🌅",l:"Monday morning",c:true},{e:"🌙",l:"Sunday night",c:false},{e:"🏫",l:"After school",c:false},{e:"🌧️",l:"A rainy Saturday",c:false}]},{type:"WHERE",q:"Where was the shoe?",choices:[{e:"🐕",l:"In Bruno's basket",c:true},{e:"🛏️",l:"Under the bed",c:false},{e:"🚪",l:"In the closet",c:false},{e:"🛋️",l:"Behind the sofa",c:false}]},{type:"HOW",q:"How did Bruno use the shoe?",choices:[{e:"😴",l:"As a pillow",c:true},{e:"🎾",l:"As a toy",c:false},{e:"🍽️",l:"As a bowl",c:false},{e:"🏃",l:"To run away",c:false}]}]},
+  {title:"Lily Wins the Race",e:"🏅",story:"<b>Lily</b> trained every day after school to run fast. On Sports Day, she lined up with ten other kids at the starting line. The whistle blew and everyone sprinted! Lily pumped her arms and ran as hard as she could. She crossed the finish line first and got a gold medal.",questions:[{type:"WHO",q:"Who won the race?",choices:[{e:"👧",l:"Lily",c:true},{e:"👦",l:"A boy",c:false},{e:"👩",l:"Her mom",c:false},{e:"🧑‍🏫",l:"Her teacher",c:false}]},{type:"WHAT",q:"What did Lily win?",choices:[{e:"🥇",l:"A gold medal",c:true},{e:"🏆",l:"A trophy",c:false},{e:"🎂",l:"A cake",c:false},{e:"🎁",l:"A present",c:false}]},{type:"WHEN",q:"When was the race?",choices:[{e:"🏫",l:"On Sports Day",c:true},{e:"🌙",l:"At night",c:false},{e:"❄️",l:"In winter",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where did Lily train?",choices:[{e:"🏫",l:"After school every day",c:true},{e:"🏖️",l:"At the beach",c:false},{e:"🌳",l:"In the forest",c:false},{e:"🛁",l:"In the bathroom",c:false}]},{type:"HOW",q:"How did Lily run faster?",choices:[{e:"💪",l:"Pumped her arms",c:true},{e:"🎵",l:"Sang a song",c:false},{e:"😴",l:"Closed her eyes",c:false},{e:"🛑",l:"Stopped to rest",c:false}]}]},
+  {title:"Oscar the Octopus",e:"🐙",story:"<b>Oscar</b> is a friendly octopus who lives in a coral reef. He has eight long arms and loves to paint pictures with them. One morning he painted a portrait of every fish in the reef. The fish were so happy they threw Oscar a party. Oscar used all eight arms to hug his friends at once.",questions:[{type:"WHO",q:"Who is Oscar?",choices:[{e:"🐙",l:"A friendly octopus",c:true},{e:"🐟",l:"A fish",c:false},{e:"🦀",l:"A crab",c:false},{e:"🐬",l:"A dolphin",c:false}]},{type:"WHAT",q:"What does Oscar love to do?",choices:[{e:"🎨",l:"Paint pictures",c:true},{e:"🎵",l:"Sing songs",c:false},{e:"🏃",l:"Run races",c:false},{e:"😴",l:"Sleep all day",c:false}]},{type:"WHEN",q:"When did Oscar paint?",choices:[{e:"🌅",l:"One morning",c:true},{e:"🌙",l:"At night",c:false},{e:"❄️",l:"In winter",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where does Oscar live?",choices:[{e:"🪸",l:"In a coral reef",c:true},{e:"🏖️",l:"On the beach",c:false},{e:"🚀",l:"In space",c:false},{e:"🌳",l:"In the forest",c:false}]},{type:"HOW",q:"How did Oscar hug all his friends?",choices:[{e:"🐙",l:"Used all eight arms",c:true},{e:"😊",l:"Just smiled",c:false},{e:"🎁",l:"Gave them gifts",c:false},{e:"🎵",l:"Sang to them",c:false}]}]},
+  {title:"Maya and the Secret Garden",e:"🌷",story:"<b>Maya</b> discovered a hidden door in the old stone wall at the back of her yard. She pushed it open and found a beautiful secret garden! There were roses, butterflies, and a little pond with frogs. Maya sat by the pond all afternoon. She decided it would be her special reading spot.",questions:[{type:"WHO",q:"Who found the secret garden?",choices:[{e:"👧",l:"Maya",c:true},{e:"👦",l:"Her brother",c:false},{e:"👴",l:"Her grandpa",c:false},{e:"👩",l:"Her mom",c:false}]},{type:"WHAT",q:"What did Maya find behind the door?",choices:[{e:"🌷",l:"A secret garden",c:true},{e:"🏠",l:"A house",c:false},{e:"🚀",l:"A rocket",c:false},{e:"🏫",l:"A school",c:false}]},{type:"WHEN",q:"How long did Maya sit by the pond?",choices:[{e:"🌅",l:"All afternoon",c:true},{e:"⏱️",l:"One minute",c:false},{e:"🌙",l:"All night",c:false},{e:"⏰",l:"All morning",c:false}]},{type:"WHERE",q:"Where was the hidden door?",choices:[{e:"🪨",l:"In the stone wall",c:true},{e:"🏠",l:"In the house",c:false},{e:"🌳",l:"In a tree",c:false},{e:"🏫",l:"At school",c:false}]},{type:"HOW",q:"What did Maya use the garden for?",choices:[{e:"📚",l:"A reading spot",c:true},{e:"⚽",l:"Playing soccer",c:false},{e:"🎨",l:"Painting",c:false},{e:"😴",l:"Sleeping",c:false}]}]},
+  {title:"Finn and the Friendly Dragon",e:"🐲",story:"<b>Finn</b> was hiking in the mountains when he heard a loud sneeze. He found a small purple dragon hiding behind a rock! The dragon sneezed fire but was too small to be scary. Finn shared his sandwich with the dragon. They became best friends and hiked to the top of the mountain together.",questions:[{type:"WHO",q:"Who did Finn find?",choices:[{e:"🐲",l:"A small purple dragon",c:true},{e:"🐻",l:"A bear",c:false},{e:"🦁",l:"A lion",c:false},{e:"🐍",l:"A snake",c:false}]},{type:"WHAT",q:"What did Finn share?",choices:[{e:"🥪",l:"His sandwich",c:true},{e:"🍎",l:"An apple",c:false},{e:"🍪",l:"A cookie",c:false},{e:"🍕",l:"A pizza",c:false}]},{type:"WHEN",q:"When did Finn hear the sneeze?",choices:[{e:"🥾",l:"While hiking",c:true},{e:"🌙",l:"At night",c:false},{e:"🏫",l:"At school",c:false},{e:"🛏️",l:"In bed",c:false}]},{type:"WHERE",q:"Where was Finn hiking?",choices:[{e:"⛰️",l:"In the mountains",c:true},{e:"🏖️",l:"At the beach",c:false},{e:"🌳",l:"In a park",c:false},{e:"🏙️",l:"In the city",c:false}]},{type:"HOW",q:"Where did they hike together?",choices:[{e:"🏔️",l:"To the top of the mountain",c:true},{e:"🏠",l:"Back home",c:false},{e:"🏫",l:"To school",c:false},{e:"🏖️",l:"To the beach",c:false}]}]},
+  {title:"Cleo the Clever Crow",e:"🐦",story:"<b>Cleo</b> is a very clever crow who lives in a tall oak tree. One day she was thirsty but the water in the jug was too low to reach. She picked up small pebbles one by one and dropped them into the jug. The water rose higher and higher. Finally Cleo could drink and cawed happily!",questions:[{type:"WHO",q:"Who is Cleo?",choices:[{e:"🐦",l:"A clever crow",c:true},{e:"🦉",l:"An owl",c:false},{e:"🦜",l:"A parrot",c:false},{e:"🐧",l:"A penguin",c:false}]},{type:"WHAT",q:"What problem did Cleo have?",choices:[{e:"💧",l:"Water too low to reach",c:true},{e:"🌧️",l:"Too much rain",c:false},{e:"🍎",l:"No food",c:false},{e:"🌬️",l:"Too windy",c:false}]},{type:"WHEN",q:"When did Cleo get thirsty?",choices:[{e:"📅",l:"One day",c:true},{e:"🌙",l:"At night",c:false},{e:"❄️",l:"In winter",c:false},{e:"🌧️",l:"In the rain",c:false}]},{type:"WHERE",q:"Where does Cleo live?",choices:[{e:"🌳",l:"In a tall oak tree",c:true},{e:"🏠",l:"In a house",c:false},{e:"🪸",l:"Under the sea",c:false},{e:"🚀",l:"In space",c:false}]},{type:"HOW",q:"How did Cleo raise the water level?",choices:[{e:"🪨",l:"Dropped in pebbles",c:true},{e:"💨",l:"Blew into the jug",c:false},{e:"🌧️",l:"Waited for rain",c:false},{e:"🏃",l:"Knocked over the jug",c:false}]}]},
+  {title:"Ben Goes Camping",e:"🏕️",story:"<b>Ben</b> went camping with his family in the forest last summer. They set up a green tent near a river. At night, they sat around a campfire and roasted marshmallows. Ben heard an owl hoot in the dark trees. He zipped up his sleeping bag and looked at the stars until he fell asleep.",questions:[{type:"WHO",q:"Who went camping?",choices:[{e:"👦",l:"Ben",c:true},{e:"👧",l:"His sister alone",c:false},{e:"👴",l:"His grandpa alone",c:false},{e:"🧑‍🏫",l:"His teacher",c:false}]},{type:"WHAT",q:"What did they roast?",choices:[{e:"🍡",l:"Marshmallows",c:true},{e:"🌽",l:"Corn",c:false},{e:"🍕",l:"Pizza",c:false},{e:"🥕",l:"Carrots",c:false}]},{type:"WHEN",q:"When did Ben go camping?",choices:[{e:"☀️",l:"Last summer",c:true},{e:"❄️",l:"Last winter",c:false},{e:"🌧️",l:"Last spring",c:false},{e:"🍂",l:"Last fall",c:false}]},{type:"WHERE",q:"Where did they set up the tent?",choices:[{e:"🏞️",l:"Near a river",c:true},{e:"🏖️",l:"On the beach",c:false},{e:"🏔️",l:"On a mountain",c:false},{e:"🏙️",l:"In the city",c:false}]},{type:"HOW",q:"What did Ben do before sleeping?",choices:[{e:"⭐",l:"Looked at the stars",c:true},{e:"📺",l:"Watched TV",c:false},{e:"📚",l:"Read a book",c:false},{e:"🎵",l:"Listened to music",c:false}]}]},
+  {title:"Rose and the Talking Parrot",e:"🦜",story:"<b>Rose</b> visited her aunt's house and met a green parrot named Taco. Taco could say ten words and loved crackers. When Rose said hello, Taco repeated it perfectly! Rose laughed so hard she almost fell off her chair. By the end of the visit, Taco had learned to say Rose's name too.",questions:[{type:"WHO",q:"Who did Rose meet?",choices:[{e:"🦜",l:"A talking parrot",c:true},{e:"🐱",l:"A cat",c:false},{e:"🐶",l:"A dog",c:false},{e:"🐠",l:"A fish",c:false}]},{type:"WHAT",q:"What was the parrot's name?",choices:[{e:"🌮",l:"Taco",c:true},{e:"🍕",l:"Pizza",c:false},{e:"🍪",l:"Cookie",c:false},{e:"🌭",l:"Hotdog",c:false}]},{type:"WHEN",q:"Where did Rose meet Taco?",choices:[{e:"🏠",l:"At her aunt's house",c:true},{e:"🏫",l:"At school",c:false},{e:"🏖️",l:"At the beach",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"WHERE",q:"What did Taco love to eat?",choices:[{e:"🍘",l:"Crackers",c:true},{e:"🍎",l:"Apples",c:false},{e:"🍌",l:"Bananas",c:false},{e:"🥕",l:"Carrots",c:false}]},{type:"HOW",q:"What new word did Taco learn?",choices:[{e:"👧",l:"Rose's name",c:true},{e:"🌮",l:"Taco",c:false},{e:"👋",l:"Hello",c:false},{e:"🍪",l:"Cookie",c:false}]}]},
+  {title:"Dino the Baby T-Rex",e:"🦕",story:"<b>Dino</b> is a baby T-Rex who just hatched from his egg. He had tiny arms, big feet, and a loud roar. He stomped through the jungle looking for breakfast. He found a pile of berries and gobbled them all up. Then Dino curled up under a fern and took a long nap.",questions:[{type:"WHO",q:"Who just hatched from an egg?",choices:[{e:"🦕",l:"Dino the T-Rex",c:true},{e:"🐣",l:"A chick",c:false},{e:"🐢",l:"A turtle",c:false},{e:"🦎",l:"A lizard",c:false}]},{type:"WHAT",q:"What did Dino eat?",choices:[{e:"🫐",l:"A pile of berries",c:true},{e:"🍖",l:"Meat",c:false},{e:"🥚",l:"An egg",c:false},{e:"🌿",l:"Grass",c:false}]},{type:"WHEN",q:"When did Dino look for breakfast?",choices:[{e:"🌅",l:"After hatching",c:true},{e:"🌙",l:"At midnight",c:false},{e:"❄️",l:"In winter",c:false},{e:"🌧️",l:"In the rain",c:false}]},{type:"WHERE",q:"Where did Dino take a nap?",choices:[{e:"🌿",l:"Under a fern",c:true},{e:"🌳",l:"Up a tree",c:false},{e:"🏞️",l:"In a river",c:false},{e:"🪨",l:"On a rock",c:false}]},{type:"HOW",q:"How did Dino sound?",choices:[{e:"📢",l:"He had a loud roar",c:true},{e:"🤫",l:"Very quiet",c:false},{e:"🎵",l:"He sang",c:false},{e:"😴",l:"He snored",c:false}]}]},
+  {title:"Grace and the Giant Pumpkin",e:"🎃",story:"<b>Grace</b> grew a pumpkin in her garden all fall long. She watered it every day and talked to it. By October the pumpkin was bigger than Grace herself! Her neighbors came to look at it and gasped. Grace won first prize at the harvest festival that year.",questions:[{type:"WHO",q:"Who grew the pumpkin?",choices:[{e:"👧",l:"Grace",c:true},{e:"👦",l:"Her brother",c:false},{e:"👴",l:"Her grandpa",c:false},{e:"🧑‍🌾",l:"A farmer",c:false}]},{type:"WHAT",q:"What was special about the pumpkin?",choices:[{e:"😲",l:"It was bigger than Grace",c:true},{e:"🌈",l:"It was rainbow colored",c:false},{e:"🎵",l:"It could sing",c:false},{e:"🏃",l:"It could walk",c:false}]},{type:"WHEN",q:"When did Grace grow it?",choices:[{e:"🍂",l:"All fall long",c:true},{e:"❄️",l:"All winter",c:false},{e:"🌸",l:"All spring",c:false},{e:"☀️",l:"All summer",c:false}]},{type:"WHERE",q:"Where did Grace win a prize?",choices:[{e:"🎪",l:"The harvest festival",c:true},{e:"🏫",l:"At school",c:false},{e:"🏖️",l:"At the beach",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"HOW",q:"How did the neighbors react?",choices:[{e:"😲",l:"They gasped",c:true},{e:"😴",l:"They fell asleep",c:false},{e:"😢",l:"They cried",c:false},{e:"😠",l:"They got angry",c:false}]}]},
+  {title:"Hugo and the Hot Air Balloon",e:"🎈",story:"<b>Hugo</b> climbed into a striped hot air balloon one crisp autumn morning. The balloon lifted slowly off the ground. He floated over his town and could see his school, his house, and the river all at once. A bird flew right past his face! Hugo waved at the tiny people below.",questions:[{type:"WHO",q:"Who rode the balloon?",choices:[{e:"👦",l:"Hugo",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"🧙",l:"A wizard",c:false}]},{type:"WHAT",q:"What flew past Hugo's face?",choices:[{e:"🐦",l:"A bird",c:true},{e:"🦋",l:"A butterfly",c:false},{e:"✈️",l:"A plane",c:false},{e:"🚁",l:"A helicopter",c:false}]},{type:"WHEN",q:"When did Hugo fly?",choices:[{e:"🍂",l:"Crisp autumn morning",c:true},{e:"❄️",l:"Snowy night",c:false},{e:"🌧️",l:"Rainy afternoon",c:false},{e:"☀️",l:"Hot summer day",c:false}]},{type:"WHERE",q:"What could Hugo see from the balloon?",choices:[{e:"🏘️",l:"His whole town",c:true},{e:"🌊",l:"The ocean",c:false},{e:"🏔️",l:"The mountains",c:false},{e:"🌵",l:"A desert",c:false}]},{type:"HOW",q:"How did Hugo say hello to people below?",choices:[{e:"👋",l:"He waved",c:true},{e:"📢",l:"He shouted",c:false},{e:"📱",l:"He called them",c:false},{e:"🎵",l:"He sang",c:false}]}]},
+  {title:"Ivy and the Ice Cream Truck",e:"🍦",story:"<b>Ivy</b> heard the ice cream truck jingle on a very hot summer day. She ran inside to get her coins and sprinted back out. The truck was just starting to drive away! She waved her arms and yelled 'Wait!' The driver stopped and smiled. Ivy got a double scoop of strawberry.",questions:[{type:"WHO",q:"Who chased the ice cream truck?",choices:[{e:"👧",l:"Ivy",c:true},{e:"👦",l:"Her neighbor",c:false},{e:"🐕",l:"A dog",c:false},{e:"👩",l:"Her mom",c:false}]},{type:"WHAT",q:"What flavor did Ivy get?",choices:[{e:"🍓",l:"Double scoop strawberry",c:true},{e:"🍫",l:"Chocolate",c:false},{e:"🍋",l:"Lemon",c:false},{e:"🍵",l:"Mint",c:false}]},{type:"WHEN",q:"When did Ivy hear the truck?",choices:[{e:"☀️",l:"Very hot summer day",c:true},{e:"❄️",l:"Cold winter day",c:false},{e:"🌧️",l:"Rainy morning",c:false},{e:"🌙",l:"At night",c:false}]},{type:"WHERE",q:"Where did Ivy get her coins?",choices:[{e:"🏠",l:"Inside her house",c:true},{e:"🏫",l:"At school",c:false},{e:"🛒",l:"At the store",c:false},{e:"🌳",l:"In the park",c:false}]},{type:"HOW",q:"How did Ivy stop the truck?",choices:[{e:"🙋",l:"Waved arms and yelled",c:true},{e:"🏃",l:"Just ran faster",c:false},{e:"📱",l:"Called them",c:false},{e:"🚗",l:"Drove after it",c:false}]}]},
+  {title:"Tom and the Treasure Map",e:"🗺️",story:"<b>Tom</b> found an old treasure map in his grandpa's attic on a rainy afternoon. The map showed a path through the backyard to a big oak tree. Tom followed the path and dug under the tree. He found a tin box with old coins, a marble, and a photo of his grandpa as a boy.",questions:[{type:"WHO",q:"Who found the treasure map?",choices:[{e:"👦",l:"Tom",c:true},{e:"👧",l:"His sister",c:false},{e:"👴",l:"His grandpa",c:false},{e:"👩",l:"His mom",c:false}]},{type:"WHAT",q:"What was in the tin box?",choices:[{e:"🪙",l:"Old coins and a marble",c:true},{e:"💎",l:"Diamonds",c:false},{e:"🍪",l:"Cookies",c:false},{e:"📚",l:"Books",c:false}]},{type:"WHEN",q:"When did Tom find the map?",choices:[{e:"🌧️",l:"Rainy afternoon",c:true},{e:"☀️",l:"Sunny morning",c:false},{e:"❄️",l:"Snowy night",c:false},{e:"🌅",l:"At sunrise",c:false}]},{type:"WHERE",q:"Where did Tom find the map?",choices:[{e:"🏚️",l:"Grandpa's attic",c:true},{e:"🏫",l:"At school",c:false},{e:"🌳",l:"Under a tree",c:false},{e:"🏖️",l:"At the beach",c:false}]},{type:"HOW",q:"Where did Tom dig?",choices:[{e:"🌳",l:"Under the big oak tree",c:true},{e:"🏖️",l:"At the beach",c:false},{e:"🌸",l:"In the flower garden",c:false},{e:"🛝",l:"At the playground",c:false}]}]},
+  {title:"Penny the Brave Mouse",e:"🐭",story:"<b>Penny</b> is a tiny brown mouse who lives in a big old house. One evening she smelled something delicious coming from the kitchen. She crept past the sleeping cat and squeezed under the fridge. There she found a huge piece of cheese! Penny nibbled it and carried the rest back to her mouse hole.",questions:[{type:"WHO",q:"Who is Penny?",choices:[{e:"🐭",l:"A tiny brown mouse",c:true},{e:"🐱",l:"A cat",c:false},{e:"🐹",l:"A hamster",c:false},{e:"🐀",l:"A big rat",c:false}]},{type:"WHAT",q:"What did Penny find?",choices:[{e:"🧀",l:"A huge piece of cheese",c:true},{e:"🍎",l:"An apple",c:false},{e:"🍪",l:"A cookie",c:false},{e:"🥕",l:"A carrot",c:false}]},{type:"WHEN",q:"When did Penny go to the kitchen?",choices:[{e:"🌆",l:"One evening",c:true},{e:"🌅",l:"In the morning",c:false},{e:"🏫",l:"After school",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where did Penny find the cheese?",choices:[{e:"🧊",l:"Under the fridge",c:true},{e:"🍳",l:"On the stove",c:false},{e:"🛏️",l:"Under a bed",c:false},{e:"🚪",l:"By the door",c:false}]},{type:"HOW",q:"How did Penny get past the cat?",choices:[{e:"🤫",l:"Crept past while it slept",c:true},{e:"🏃",l:"Ran really fast",c:false},{e:"🎵",l:"Sang it to sleep",c:false},{e:"🍎",l:"Gave it an apple",c:false}]}]},
+  {title:"Alex Learns to Swim",e:"🏊",story:"<b>Alex</b> was nervous about swimming lessons every Saturday morning. The pool felt cold and the water looked deep. His teacher Miss Flores held his hand and showed him how to kick. After six lessons, Alex swam the whole length of the pool by himself! He jumped up and cheered so loud everyone laughed.",questions:[{type:"WHO",q:"Who was nervous about swimming?",choices:[{e:"👦",l:"Alex",c:true},{e:"👧",l:"His friend",c:false},{e:"👩",l:"Miss Flores",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What did Miss Flores show Alex?",choices:[{e:"🦵",l:"How to kick",c:true},{e:"🤸",l:"How to dive",c:false},{e:"🤽",l:"Water polo",c:false},{e:"🏄",l:"Surfing",c:false}]},{type:"WHEN",q:"When were Alex's lessons?",choices:[{e:"📅",l:"Every Saturday morning",c:true},{e:"🌙",l:"Every Friday night",c:false},{e:"🏫",l:"During school",c:false},{e:"☀️",l:"Every Sunday afternoon",c:false}]},{type:"WHERE",q:"Where did Alex swim?",choices:[{e:"🏊",l:"In a pool",c:true},{e:"🌊",l:"In the ocean",c:false},{e:"🏞️",l:"In a lake",c:false},{e:"🛁",l:"In the bathtub",c:false}]},{type:"HOW",q:"How did Alex react after swimming the whole pool?",choices:[{e:"🎉",l:"Jumped up and cheered",c:true},{e:"😴",l:"Fell asleep",c:false},{e:"😢",l:"Cried",c:false},{e:"🏃",l:"Ran away",c:false}]}]},
+  {title:"Bella and the Baby Deer",e:"🦌",story:"<b>Bella</b> was on a nature walk with her class on a Tuesday. Deep in the woods she spotted a baby deer standing very still between two trees. It had big brown eyes and white spots. Bella held very still so she would not scare it. The deer blinked slowly then disappeared into the trees.",questions:[{type:"WHO",q:"Who saw the baby deer?",choices:[{e:"👧",l:"Bella",c:true},{e:"👦",l:"Her classmate",c:false},{e:"🧑‍🏫",l:"Her teacher",c:false},{e:"👩",l:"Her mom",c:false}]},{type:"WHAT",q:"What did the deer look like?",choices:[{e:"🦌",l:"Big brown eyes and white spots",c:true},{e:"🐆",l:"Yellow with black spots",c:false},{e:"🦒",l:"Tall with a long neck",c:false},{e:"🐘",l:"Grey and very big",c:false}]},{type:"WHEN",q:"When did this happen?",choices:[{e:"📅",l:"On a Tuesday",c:true},{e:"🌙",l:"At night",c:false},{e:"❄️",l:"In winter",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where did Bella see the deer?",choices:[{e:"🌲",l:"Deep in the woods",c:true},{e:"🏖️",l:"At the beach",c:false},{e:"🏙️",l:"In the city",c:false},{e:"🏡",l:"In a backyard",c:false}]},{type:"HOW",q:"How did Bella avoid scaring the deer?",choices:[{e:"🧍",l:"Held very still",c:true},{e:"🏃",l:"Ran away",c:false},{e:"📢",l:"Yelled hello",c:false},{e:"🤸",l:"Did a cartwheel",c:false}]}]},
+  {title:"Nora and the Noisy Neighbor",e:"🎺",story:"<b>Nora</b> could hear loud music coming from next door every evening. She knocked on the neighbor's door and met an old man named Mr. Ling. He was learning to play the trumpet! He apologized for the noise. Nora asked if she could listen from the doorstep. Mr. Ling played her a whole song and she clapped the loudest.",questions:[{type:"WHO",q:"Who lived next door?",choices:[{e:"👴",l:"Mr. Ling",c:true},{e:"👧",l:"A little girl",c:false},{e:"🐶",l:"A dog",c:false},{e:"👩",l:"A young woman",c:false}]},{type:"WHAT",q:"What was Mr. Ling learning?",choices:[{e:"🎺",l:"To play the trumpet",c:true},{e:"🎹",l:"To play piano",c:false},{e:"🥁",l:"To play drums",c:false},{e:"🎸",l:"To play guitar",c:false}]},{type:"WHEN",q:"When did Nora hear the music?",choices:[{e:"🌆",l:"Every evening",c:true},{e:"🌅",l:"Every morning",c:false},{e:"🌙",l:"Every midnight",c:false},{e:"🏫",l:"During school",c:false}]},{type:"WHERE",q:"Where did Nora listen?",choices:[{e:"🚪",l:"From the doorstep",c:true},{e:"🏠",l:"Inside his house",c:false},{e:"🌳",l:"In the park",c:false},{e:"🏫",l:"At school",c:false}]},{type:"HOW",q:"How did Nora react to the song?",choices:[{e:"👏",l:"Clapped the loudest",c:true},{e:"😴",l:"Fell asleep",c:false},{e:"😢",l:"Cried",c:false},{e:"🏃",l:"Ran away",c:false}]}]},
+  {title:"Eddie and the Electric Eel",e:"⚡",story:"<b>Eddie</b> visited the aquarium on a field trip with his class. He pressed his nose to every tank. At the last tank he saw a long silver electric eel glowing in the dark water. A sign said the eel could make enough electricity to light up a lightbulb! Eddie stared at it for so long his teacher had to pull him away.",questions:[{type:"WHO",q:"Who visited the aquarium?",choices:[{e:"👦",l:"Eddie",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What could the eel do?",choices:[{e:"💡",l:"Light up a lightbulb",c:true},{e:"🎵",l:"Sing a song",c:false},{e:"🏃",l:"Run fast on land",c:false},{e:"🌈",l:"Change colors",c:false}]},{type:"WHEN",q:"When did Eddie go to the aquarium?",choices:[{e:"🏫",l:"On a field trip",c:true},{e:"🌙",l:"At night",c:false},{e:"🎂",l:"On his birthday",c:false},{e:"🌧️",l:"On a rainy day alone",c:false}]},{type:"WHERE",q:"Where was the eel?",choices:[{e:"🐠",l:"In the last tank",c:true},{e:"🏊",l:"In a pool",c:false},{e:"🌊",l:"In the ocean",c:false},{e:"🛁",l:"In a bathtub",c:false}]},{type:"HOW",q:"How did Eddie leave the eel tank?",choices:[{e:"👩‍🏫",l:"Teacher pulled him away",c:true},{e:"🏃",l:"He ran away scared",c:false},{e:"😴",l:"He fell asleep",c:false},{e:"🍎",l:"He went to lunch",c:false}]}]},
+  {title:"Lila and the Lemon Tree",e:"🍋",story:"<b>Lila</b> had a lemon tree that grew too many lemons every summer. She set up a lemonade stand on the corner. She squeezed lemons all morning until her arms ached. By afternoon she had sold forty cups! She used the money to buy a book she had wanted for months.",questions:[{type:"WHO",q:"Who set up the lemonade stand?",choices:[{e:"👧",l:"Lila",c:true},{e:"👦",l:"Her brother",c:false},{e:"👩",l:"Her mom",c:false},{e:"👴",l:"Her grandpa",c:false}]},{type:"WHAT",q:"What did Lila buy with the money?",choices:[{e:"📚",l:"A book",c:true},{e:"🎮",l:"A video game",c:false},{e:"🍦",l:"Ice cream",c:false},{e:"🪁",l:"A kite",c:false}]},{type:"WHEN",q:"When did Lila squeeze lemons?",choices:[{e:"🌅",l:"All morning",c:true},{e:"🌙",l:"All night",c:false},{e:"❄️",l:"In winter",c:false},{e:"🌧️",l:"In the rain",c:false}]},{type:"WHERE",q:"Where was Lila's stand?",choices:[{e:"🏙️",l:"On the corner",c:true},{e:"🏫",l:"At school",c:false},{e:"🏖️",l:"At the beach",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"HOW",q:"How many cups did Lila sell?",choices:[{e:"4️⃣",l:"Forty cups",c:true},{e:"5️⃣",l:"Five cups",c:false},{e:"1️⃣",l:"Ten cups",c:false},{e:"💯",l:"One hundred",c:false}]}]},
+  {title:"Remy and the Runaway Hamster",e:"🐹",story:"<b>Remy</b> opened his hamster's cage to give him fresh water. Nugget the hamster jumped out and ran under the couch! Remy got a flashlight and a handful of sunflower seeds. He sprinkled the seeds in a trail leading back to the cage. Nugget followed the seeds all the way in and Remy snapped the door shut.",questions:[{type:"WHO",q:"Who owned the hamster?",choices:[{e:"👦",l:"Remy",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What was the hamster's name?",choices:[{e:"☀️",l:"Nugget",c:true},{e:"🌙",l:"Moon",c:false},{e:"⭐",l:"Star",c:false},{e:"🌈",l:"Rainbow",c:false}]},{type:"WHEN",q:"When did Nugget escape?",choices:[{e:"💧",l:"While Remy gave him water",c:true},{e:"🌙",l:"At night",c:false},{e:"🏫",l:"After school",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where did Nugget hide?",choices:[{e:"🛋️",l:"Under the couch",c:true},{e:"🛁",l:"In the bathtub",c:false},{e:"🚗",l:"In a car",c:false},{e:"🌳",l:"Outside",c:false}]},{type:"HOW",q:"How did Remy get Nugget back?",choices:[{e:"🌻",l:"Trail of sunflower seeds",c:true},{e:"🏃",l:"Chased him",c:false},{e:"🪤",l:"Used a trap",c:false},{e:"📢",l:"Called his name",c:false}]}]},
+  {title:"Yasmin and the Yak",e:"🦬",story:"<b>Yasmin</b> went on a mountain trek with her family. High up on the snowy path they met a big fluffy yak standing right in the middle of the trail. It would not move! Yasmin's dad held out a carrot and the yak sniffed it. The yak stepped aside to eat the carrot and the family walked safely past.",questions:[{type:"WHO",q:"Who met the yak?",choices:[{e:"👧",l:"Yasmin",c:true},{e:"👦",l:"Her brother",c:false},{e:"🧑‍🏫",l:"A guide",c:false},{e:"👴",l:"Her grandpa",c:false}]},{type:"WHAT",q:"What was blocking the trail?",choices:[{e:"🦬",l:"A big fluffy yak",c:true},{e:"🐻",l:"A bear",c:false},{e:"🪨",l:"A boulder",c:false},{e:"❄️",l:"Deep snow",c:false}]},{type:"WHEN",q:"When did they meet the yak?",choices:[{e:"🥾",l:"On the mountain trek",c:true},{e:"🌙",l:"At night",c:false},{e:"🏫",l:"At school",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"WHERE",q:"Where was the yak standing?",choices:[{e:"🛤️",l:"In the middle of the trail",c:true},{e:"🌊",l:"In a river",c:false},{e:"🌳",l:"In a forest",c:false},{e:"🏡",l:"In a yard",c:false}]},{type:"HOW",q:"How did they get the yak to move?",choices:[{e:"🥕",l:"Offered it a carrot",c:true},{e:"📢",l:"Shouted at it",c:false},{e:"🏃",l:"Ran past it",c:false},{e:"🎵",l:"Played music",c:false}]}]},
+  {title:"Kai and the Paper Crane",e:"🕊️",story:"<b>Kai</b> learned to fold paper cranes from his grandmother on a winter afternoon. His first one was crumpled and lopsided. He tried again and again until he made a perfect crane. His grandmother smiled and said if he made one thousand cranes his wish would come true. Kai put the crane on his windowsill and started folding another one.",questions:[{type:"WHO",q:"Who taught Kai to fold cranes?",choices:[{e:"👵",l:"His grandmother",c:true},{e:"🧑‍🏫",l:"His teacher",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What did Kai make?",choices:[{e:"🕊️",l:"A paper crane",c:true},{e:"✈️",l:"A paper plane",c:false},{e:"🚀",l:"A paper rocket",c:false},{e:"🏠",l:"A paper house",c:false}]},{type:"WHEN",q:"When did Kai learn this?",choices:[{e:"❄️",l:"A winter afternoon",c:true},{e:"☀️",l:"A summer morning",c:false},{e:"🌧️",l:"A rainy evening",c:false},{e:"🍂",l:"A fall night",c:false}]},{type:"WHERE",q:"Where did Kai put the crane?",choices:[{e:"🪟",l:"On his windowsill",c:true},{e:"🛏️",l:"On his pillow",c:false},{e:"🌳",l:"In a tree",c:false},{e:"🎒",l:"In his backpack",c:false}]},{type:"HOW",q:"How many cranes for a wish?",choices:[{e:"💯",l:"One thousand",c:true},{e:"1️⃣",l:"One",c:false},{e:"🔟",l:"Ten",c:false},{e:"💯",l:"One hundred",c:false}]}]},
+  {title:"Daisy and the Dinosaur Egg",e:"🥚",story:"<b>Daisy</b> was digging in the backyard when her shovel hit something hard. She brushed away the dirt and found a huge speckled egg! It was warm to the touch. Daisy carried it inside and put it under a lamp to keep it warm. That night she heard a tiny crack. By morning a little green lizard had hatched.",questions:[{type:"WHO",q:"Who found the egg?",choices:[{e:"👧",l:"Daisy",c:true},{e:"👦",l:"Her brother",c:false},{e:"🐕",l:"Her dog",c:false},{e:"👩",l:"Her mom",c:false}]},{type:"WHAT",q:"What hatched from the egg?",choices:[{e:"🦎",l:"A little green lizard",c:true},{e:"🦕",l:"A dinosaur",c:false},{e:"🐣",l:"A chick",c:false},{e:"🐢",l:"A turtle",c:false}]},{type:"WHEN",q:"When did Daisy hear the egg crack?",choices:[{e:"🌙",l:"That night",c:true},{e:"🌅",l:"In the morning",c:false},{e:"🌆",l:"In the evening",c:false},{e:"☀️",l:"At noon",c:false}]},{type:"WHERE",q:"Where did Daisy keep the egg warm?",choices:[{e:"💡",l:"Under a lamp",c:true},{e:"🛁",l:"In the bathtub",c:false},{e:"🌳",l:"Under a tree",c:false},{e:"🚗",l:"In a car",c:false}]},{type:"HOW",q:"How did Daisy find the egg?",choices:[{e:"🪣",l:"Shovel hit it while digging",c:true},{e:"🎁",l:"It was a gift",c:false},{e:"🛒",l:"She bought it",c:false},{e:"🌧️",l:"It fell from the sky",c:false}]}]},
+  {title:"Marco and the Map of Stars",e:"🌟",story:"<b>Marco</b> and his dad set up a telescope in the backyard on a clear Friday night. Marco looked through the lens and gasped. He could see craters on the moon and three of Jupiter's moons! His dad showed him how to find the Big Dipper. Marco drew everything he saw in a little notebook.",questions:[{type:"WHO",q:"Who looked through the telescope?",choices:[{e:"👦",l:"Marco",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"🧑‍🏫",l:"His teacher",c:false}]},{type:"WHAT",q:"What did Marco see on Jupiter?",choices:[{e:"🌙",l:"Three of its moons",c:true},{e:"🌊",l:"Oceans",c:false},{e:"🌈",l:"Rainbows",c:false},{e:"⚡",l:"Lightning only",c:false}]},{type:"WHEN",q:"When did Marco use the telescope?",choices:[{e:"🌙",l:"Clear Friday night",c:true},{e:"☀️",l:"Sunny morning",c:false},{e:"🌧️",l:"Rainy afternoon",c:false},{e:"🏫",l:"During school",c:false}]},{type:"WHERE",q:"Where did they set up the telescope?",choices:[{e:"🏡",l:"In the backyard",c:true},{e:"🏫",l:"At school",c:false},{e:"🏔️",l:"On a mountain",c:false},{e:"🏖️",l:"At the beach",c:false}]},{type:"HOW",q:"What did Marco do with what he saw?",choices:[{e:"📓",l:"Drew it in a notebook",c:true},{e:"📸",l:"Took a photo",c:false},{e:"📢",l:"Told everyone loudly",c:false},{e:"😴",l:"Went to sleep",c:false}]}]},
+  {title:"Priya and the Perfect Pancakes",e:"🥞",story:"<b>Priya</b> decided to make pancakes for her family on Sunday morning as a surprise. She mixed the batter, heated the pan, and poured perfect circles. The first pancake burned a little but the rest came out golden. She stacked them up and drizzled honey on top. Her family woke up to the smell and came running.",questions:[{type:"WHO",q:"Who made the pancakes?",choices:[{e:"👧",l:"Priya",c:true},{e:"👩",l:"Her mom",c:false},{e:"👴",l:"Her grandpa",c:false},{e:"👦",l:"Her brother",c:false}]},{type:"WHAT",q:"What did Priya put on top?",choices:[{e:"🍯",l:"Honey",c:true},{e:"🍓",l:"Strawberries",c:false},{e:"🧈",l:"Just butter",c:false},{e:"🍫",l:"Chocolate",c:false}]},{type:"WHEN",q:"When did Priya make pancakes?",choices:[{e:"☀️",l:"Sunday morning",c:true},{e:"🌙",l:"Saturday night",c:false},{e:"🏫",l:"After school",c:false},{e:"❄️",l:"On a snow day",c:false}]},{type:"WHERE",q:"How did the family know food was ready?",choices:[{e:"👃",l:"They smelled it",c:true},{e:"📢",l:"Priya called them",c:false},{e:"⏰",l:"An alarm went off",c:false},{e:"📱",l:"She sent a text",c:false}]},{type:"HOW",q:"How did the first pancake turn out?",choices:[{e:"🔥",l:"A little burned",c:true},{e:"✨",l:"Perfect",c:false},{e:"💧",l:"Too wet",c:false},{e:"❄️",l:"Too cold",c:false}]}]},
+  {title:"Victor and the Volcano Project",e:"🌋",story:"<b>Victor</b> built a papier-mache volcano for the school science fair. He worked on it every night for two weeks. On the day of the fair, he poured baking soda and vinegar inside. The volcano erupted with pink foam that oozed down the sides! His classmates cheered and Victor won second place.",questions:[{type:"WHO",q:"Who built the volcano?",choices:[{e:"👦",l:"Victor",c:true},{e:"👧",l:"His partner",c:false},{e:"👩",l:"His mom",c:false},{e:"🧑‍🏫",l:"His teacher",c:false}]},{type:"WHAT",q:"What came out of the volcano?",choices:[{e:"🌸",l:"Pink foam",c:true},{e:"🔥",l:"Real fire",c:false},{e:"💧",l:"Plain water",c:false},{e:"⬛",l:"Black smoke",c:false}]},{type:"WHEN",q:"How long did Victor work on it?",choices:[{e:"📅",l:"Every night two weeks",c:true},{e:"1️⃣",l:"One afternoon",c:false},{e:"📅",l:"One whole month",c:false},{e:"⏱️",l:"Just one hour",c:false}]},{type:"WHERE",q:"Where did Victor show the volcano?",choices:[{e:"🏫",l:"The school science fair",c:true},{e:"🏠",l:"At home",c:false},{e:"🏖️",l:"At the beach",c:false},{e:"🌳",l:"In the park",c:false}]},{type:"HOW",q:"What place did Victor win?",choices:[{e:"🥈",l:"Second place",c:true},{e:"🥇",l:"First place",c:false},{e:"🥉",l:"Third place",c:false},{e:"🏅",l:"No place",c:false}]}]},
+  {title:"Hana and the Hiccuping Horse",e:"🐴",story:"<b>Hana</b> went to a riding school on a Saturday and met a chestnut horse named Clover. Every time Hana said hello, Clover hiccupped and shook her mane. The teacher said Clover always hiccupped when she was happy. Hana rode Clover around the paddock three times. By the end Clover was hiccupping so much everyone laughed.",questions:[{type:"WHO",q:"Who did Hana meet?",choices:[{e:"🐴",l:"A horse named Clover",c:true},{e:"🐄",l:"A cow",c:false},{e:"🐑",l:"A sheep",c:false},{e:"🐐",l:"A goat",c:false}]},{type:"WHAT",q:"What did Clover do when happy?",choices:[{e:"😮",l:"Hiccupped",c:true},{e:"🎵",l:"Sang",c:false},{e:"💤",l:"Fell asleep",c:false},{e:"🏃",l:"Ran away",c:false}]},{type:"WHEN",q:"When did Hana go riding?",choices:[{e:"📅",l:"On a Saturday",c:true},{e:"📅",l:"On a Monday",c:false},{e:"🌙",l:"At night",c:false},{e:"🏫",l:"During school",c:false}]},{type:"WHERE",q:"Where did Hana ride Clover?",choices:[{e:"🏇",l:"Around the paddock",c:true},{e:"🏖️",l:"On the beach",c:false},{e:"🌳",l:"In the forest",c:false},{e:"🏙️",l:"In the city",c:false}]},{type:"HOW",q:"How many times did Hana ride around?",choices:[{e:"3️⃣",l:"Three times",c:true},{e:"1️⃣",l:"Once",c:false},{e:"5️⃣",l:"Five times",c:false},{e:"🔟",l:"Ten times",c:false}]}]},
+  {title:"Otto and the Old Radio",e:"📻",story:"<b>Otto</b> found an old dusty radio in his grandma's attic. He cleaned it up and plugged it in. Static crackled and then a jazz song came on! Otto danced around the attic until the song ended. His grandma came upstairs and said the radio had played that same song at her wedding. They danced together.",questions:[{type:"WHO",q:"Who found the old radio?",choices:[{e:"👦",l:"Otto",c:true},{e:"👧",l:"His sister",c:false},{e:"👴",l:"His grandpa",c:false},{e:"👩",l:"His mom",c:false}]},{type:"WHAT",q:"What came on the radio?",choices:[{e:"🎷",l:"A jazz song",c:true},{e:"📰",l:"The news",c:false},{e:"⚽",l:"A soccer game",c:false},{e:"🎃",l:"A scary story",c:false}]},{type:"WHEN",q:"When did Grandma last hear that song?",choices:[{e:"💒",l:"At her wedding",c:true},{e:"🏫",l:"At school",c:false},{e:"🎂",l:"At a birthday",c:false},{e:"🌙",l:"Last night",c:false}]},{type:"WHERE",q:"Where did Otto find the radio?",choices:[{e:"🏚️",l:"In grandma's attic",c:true},{e:"🛒",l:"At the store",c:false},{e:"🏫",l:"At school",c:false},{e:"🌳",l:"Outside",c:false}]},{type:"HOW",q:"What did Otto do when the song played?",choices:[{e:"💃",l:"Danced around the attic",c:true},{e:"😴",l:"Fell asleep",c:false},{e:"😢",l:"Cried",c:false},{e:"📱",l:"Recorded it",c:false}]}]},
+  {title:"Zoe and the Zipline",e:"🏕️",story:"<b>Zoe</b> was at summer camp when she tried the zipline for the very first time. She stood on the platform high above the trees and her legs shook. She closed her eyes and jumped. The wind rushed past her face and she screamed with joy! At the bottom her whole cabin cheered. Zoe ran straight back up to do it again.",questions:[{type:"WHO",q:"Who tried the zipline?",choices:[{e:"👧",l:"Zoe",c:true},{e:"👦",l:"Her friend",c:false},{e:"🧑‍🏫",l:"Her counselor",c:false},{e:"👩",l:"Her mom",c:false}]},{type:"WHAT",q:"What did Zoe feel when she jumped?",choices:[{e:"💨",l:"Wind rushing past her face",c:true},{e:"🌧️",l:"Rain on her head",c:false},{e:"❄️",l:"Cold snow",c:false},{e:"🔥",l:"Heat",c:false}]},{type:"WHEN",q:"When did Zoe try the zipline?",choices:[{e:"🌲",l:"At summer camp",c:true},{e:"🏫",l:"At school",c:false},{e:"🎂",l:"On her birthday",c:false},{e:"🌧️",l:"On a rainy day",c:false}]},{type:"WHERE",q:"Where did Zoe stand before jumping?",choices:[{e:"🪵",l:"On a high platform",c:true},{e:"🌳",l:"In a tree",c:false},{e:"🏠",l:"On the roof",c:false},{e:"⛰️",l:"On a mountain",c:false}]},{type:"HOW",q:"What did Zoe do right after landing?",choices:[{e:"🏃",l:"Ran back up to go again",c:true},{e:"😴",l:"Took a nap",c:false},{e:"🍎",l:"Ate lunch",c:false},{e:"😢",l:"Cried",c:false}]}]},
+  {title:"Leo and the Library Card",e:"📚",story:"<b>Leo</b> got his very first library card on his seventh birthday. The librarian let him pick any book in the whole library. Leo walked up and down the aisles for twenty minutes. He chose a book about deep sea creatures with glowing fish on the cover. He read the whole thing that same afternoon.",questions:[{type:"WHO",q:"Who got a library card?",choices:[{e:"👦",l:"Leo",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What kind of book did Leo pick?",choices:[{e:"🐠",l:"Deep sea creatures",c:true},{e:"🚀",l:"Space adventures",c:false},{e:"🦕",l:"Dinosaurs",c:false},{e:"🏰",l:"Castles",c:false}]},{type:"WHEN",q:"When did Leo get his library card?",choices:[{e:"🎂",l:"His seventh birthday",c:true},{e:"🎃",l:"Halloween",c:false},{e:"🎄",l:"Christmas",c:false},{e:"🌸",l:"First day of spring",c:false}]},{type:"WHERE",q:"How long did Leo look for a book?",choices:[{e:"⏱️",l:"Twenty minutes",c:true},{e:"⏱️",l:"Two minutes",c:false},{e:"⏱️",l:"Two hours",c:false},{e:"⏱️",l:"Two seconds",c:false}]},{type:"HOW",q:"When did Leo finish reading?",choices:[{e:"🌅",l:"That same afternoon",c:true},{e:"📅",l:"One week later",c:false},{e:"🌙",l:"The next night",c:false},{e:"🏫",l:"At school",c:false}]}]},
+  {title:"Amara and the Ant Army",e:"🐜",story:"<b>Amara</b> was eating a sandwich in the garden when she noticed a long line of ants carrying crumbs. She followed the line all the way to a crack in the wall. She watched for half an hour as the ants worked without stopping. She left a small piece of bread near the crack as a gift. The ants carried it away in seconds!",questions:[{type:"WHO",q:"Who watched the ants?",choices:[{e:"👧",l:"Amara",c:true},{e:"👦",l:"Her brother",c:false},{e:"👴",l:"Her grandpa",c:false},{e:"👩",l:"Her mom",c:false}]},{type:"WHAT",q:"What were the ants carrying?",choices:[{e:"🍞",l:"Crumbs",c:true},{e:"🌱",l:"Seeds",c:false},{e:"💧",l:"Water drops",c:false},{e:"🪨",l:"Pebbles",c:false}]},{type:"WHEN",q:"How long did Amara watch?",choices:[{e:"⏱️",l:"Half an hour",c:true},{e:"⏱️",l:"Two seconds",c:false},{e:"⏱️",l:"All day",c:false},{e:"⏱️",l:"Five minutes",c:false}]},{type:"WHERE",q:"Where did the ant line lead?",choices:[{e:"🏚️",l:"A crack in the wall",c:true},{e:"🌳",l:"Up a tree",c:false},{e:"🏠",l:"Inside the house",c:false},{e:"🌊",l:"To a pond",c:false}]},{type:"HOW",q:"How fast did the ants take the bread?",choices:[{e:"⚡",l:"In seconds",c:true},{e:"🐢",l:"Very slowly",c:false},{e:"🌙",l:"The next day",c:false},{e:"❓",l:"They didn't take it",c:false}]}]},
+  {title:"Felix and the Frog Choir",e:"🐸",story:"<b>Felix</b> could not sleep one warm summer night because of a loud croaking sound outside. He looked out his window and saw twenty frogs sitting around the garden pond. They all croaked in a rhythm like a choir. Felix grabbed his recorder and played along with them! The frogs croaked louder and Felix played louder too.",questions:[{type:"WHO",q:"Who played music with the frogs?",choices:[{e:"👦",l:"Felix",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"👴",l:"His neighbor",c:false}]},{type:"WHAT",q:"What instrument did Felix play?",choices:[{e:"🎼",l:"A recorder",c:true},{e:"🎸",l:"A guitar",c:false},{e:"🥁",l:"Drums",c:false},{e:"🎺",l:"A trumpet",c:false}]},{type:"WHEN",q:"When did the frogs croak?",choices:[{e:"🌙",l:"Warm summer night",c:true},{e:"🌅",l:"Early morning",c:false},{e:"🏫",l:"During school",c:false},{e:"❄️",l:"On a cold night",c:false}]},{type:"WHERE",q:"Where were the frogs sitting?",choices:[{e:"🌊",l:"Around the garden pond",c:true},{e:"🌳",l:"Up in the trees",c:false},{e:"🛏️",l:"In Felix's room",c:false},{e:"🏫",l:"At school",c:false}]},{type:"HOW",q:"How did they perform together?",choices:[{e:"🔊",l:"Both got louder and louder",c:true},{e:"🤫",l:"Very quietly",c:false},{e:"😴",l:"They fell asleep",c:false},{e:"🏃",l:"Frogs hopped away",c:false}]}]},
+  {title:"Isla and the Invisible Ink",e:"🔍",story:"<b>Isla</b> wrote a secret message to her best friend using lemon juice and a cotton swab. The paper looked blank when it dried. She told her friend to hold the paper near a lamp. The heat made the words appear in brown letters! Her friend gasped and wrote back with invisible ink too. They passed secret notes all week.",questions:[{type:"WHO",q:"Who wrote the secret message?",choices:[{e:"👧",l:"Isla",c:true},{e:"👦",l:"Her brother",c:false},{e:"👩",l:"Her mom",c:false},{e:"🧑‍🏫",l:"Her teacher",c:false}]},{type:"WHAT",q:"What did Isla use to write?",choices:[{e:"🍋",l:"Lemon juice",c:true},{e:"🖊️",l:"A regular pen",c:false},{e:"🖍️",l:"A crayon",c:false},{e:"💧",l:"Plain water",c:false}]},{type:"WHEN",q:"How long did they pass notes?",choices:[{e:"📅",l:"All week",c:true},{e:"1️⃣",l:"Just once",c:false},{e:"📅",l:"All month",c:false},{e:"⏱️",l:"For one hour",c:false}]},{type:"WHERE",q:"How did the words appear?",choices:[{e:"💡",l:"Held near a lamp",c:true},{e:"💧",l:"Dipped in water",c:false},{e:"❄️",l:"Put in the freezer",c:false},{e:"☀️",l:"Left in the sun",c:false}]},{type:"HOW",q:"What color did the letters turn?",choices:[{e:"🟫",l:"Brown",c:true},{e:"🔴",l:"Red",c:false},{e:"🔵",l:"Blue",c:false},{e:"🟡",l:"Yellow",c:false}]}]},
+  {title:"Cole and the Colorful Chameleon",e:"🦎",story:"<b>Cole</b> visited a reptile show at the science museum. A keeper placed a green chameleon on his arm. As Cole watched, the chameleon slowly turned orange to match his shirt! The keeper explained that chameleons change color to communicate, not just to hide. Cole thought that was the coolest thing he had ever learned.",questions:[{type:"WHO",q:"Who held the chameleon?",choices:[{e:"👦",l:"Cole",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"The keeper",c:false},{e:"👴",l:"His grandpa",c:false}]},{type:"WHAT",q:"What color did the chameleon turn?",choices:[{e:"🟠",l:"Orange",c:true},{e:"🔵",l:"Blue",c:false},{e:"🟣",l:"Purple",c:false},{e:"⬛",l:"Black",c:false}]},{type:"WHEN",q:"When did Cole hold the chameleon?",choices:[{e:"🏛️",l:"At the science museum",c:true},{e:"🏫",l:"At school",c:false},{e:"🏠",l:"At home",c:false},{e:"🏖️",l:"At the beach",c:false}]},{type:"WHERE",q:"Where did the keeper put the chameleon?",choices:[{e:"💪",l:"On Cole's arm",c:true},{e:"🎩",l:"On his head",c:false},{e:"🦶",l:"On his foot",c:false},{e:"🪑",l:"On a chair",c:false}]},{type:"HOW",q:"Why do chameleons change color?",choices:[{e:"💬",l:"To communicate",c:true},{e:"🍎",l:"To find food",c:false},{e:"😴",l:"When they sleep",c:false},{e:"🌧️",l:"When it rains",c:false}]}]},
+  {title:"Milo and the Monarch Butterfly",e:"🦋",story:"<b>Milo</b> found a monarch butterfly resting on his windowsill one autumn morning. Its orange and black wings were dusty and still. Milo looked it up and learned that monarchs fly thousands of miles to Mexico every year! He made a small dish of sugar water and set it nearby. The butterfly drank from it and flew away.",questions:[{type:"WHO",q:"Who found the butterfly?",choices:[{e:"👦",l:"Milo",c:true},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false},{e:"🐱",l:"His cat",c:false}]},{type:"WHAT",q:"Where do monarchs fly every year?",choices:[{e:"🇲🇽",l:"To Mexico",c:true},{e:"🇨🇦",l:"To Canada",c:false},{e:"🌊",l:"To the ocean",c:false},{e:"🏔️",l:"To the mountains",c:false}]},{type:"WHEN",q:"When did Milo find the butterfly?",choices:[{e:"🍂",l:"Autumn morning",c:true},{e:"❄️",l:"Winter night",c:false},{e:"🌸",l:"Spring afternoon",c:false},{e:"☀️",l:"Summer noon",c:false}]},{type:"WHERE",q:"Where was the butterfly resting?",choices:[{e:"🪟",l:"On the windowsill",c:true},{e:"🌳",l:"In a tree",c:false},{e:"🌷",l:"On a flower",c:false},{e:"🛏️",l:"On his pillow",c:false}]},{type:"HOW",q:"What did Milo make for the butterfly?",choices:[{e:"💧",l:"A dish of sugar water",c:true},{e:"🍎",l:"A piece of apple",c:false},{e:"🍪",l:"A tiny cookie",c:false},{e:"🌱",l:"A little plant",c:false}]}]},
+  {title:"Ada and the Art Contest",e:"🖼️",story:"<b>Ada</b> entered a painting contest at her local library. She painted a picture of her neighborhood at night with glowing streetlights and a purple sky. She used an old toothbrush to flick tiny white dots for stars. When the winner was announced, Ada held her breath. She won the under-ten category!",questions:[{type:"WHO",q:"Who entered the painting contest?",choices:[{e:"👧",l:"Ada",c:true},{e:"👦",l:"Her brother",c:false},{e:"👩",l:"Her mom",c:false},{e:"🧑‍🎨",l:"A professional artist",c:false}]},{type:"WHAT",q:"What did Ada paint?",choices:[{e:"🌃",l:"Her neighborhood at night",c:true},{e:"🏖️",l:"The beach",c:false},{e:"🌈",l:"A rainbow",c:false},{e:"🦁",l:"A lion",c:false}]},{type:"WHEN",q:"How long did the painting hang in the library?",choices:[{e:"📅",l:"A whole month",c:true},{e:"📅",l:"One week",c:false},{e:"📅",l:"One year",c:false},{e:"⏱️",l:"One hour",c:false}]},{type:"WHERE",q:"Where was the contest held?",choices:[{e:"📚",l:"The local library",c:true},{e:"🏫",l:"Her school",c:false},{e:"🏛️",l:"A museum",c:false},{e:"🏪",l:"A store",c:false}]},{type:"HOW",q:"How did Ada make the stars?",choices:[{e:"🪥",l:"Flicked an old toothbrush",c:true},{e:"✏️",l:"Drew with a pencil",c:false},{e:"🖊️",l:"Painted dots with a brush",c:false},{e:"⭐",l:"Used stickers",c:false}]}]},
+  {title:"Theo and the Talking Fish",e:"🐡",story:"<b>Theo</b> was fishing with his grandpa at the lake when he caught a golden fish. The fish popped its head above water and said, 'Put me back and I will grant you one wish!' Theo thought very hard. He wished his grandpa would always be healthy. The fish smiled and splashed back into the lake.",questions:[{type:"WHO",q:"Who caught the golden fish?",choices:[{e:"👦",l:"Theo",c:true},{e:"👴",l:"His grandpa",c:false},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false}]},{type:"WHAT",q:"What did the fish offer?",choices:[{e:"✨",l:"One wish",c:true},{e:"💰",l:"Gold coins",c:false},{e:"🍎",l:"Magic fruit",c:false},{e:"🗺️",l:"A treasure map",c:false}]},{type:"WHEN",q:"When did Theo catch the fish?",choices:[{e:"🎣",l:"While fishing at the lake",c:true},{e:"🌙",l:"At night in his room",c:false},{e:"🏫",l:"At school",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"WHERE",q:"Where did the fish go after?",choices:[{e:"🌊",l:"Back into the lake",c:true},{e:"🏠",l:"Into the house",c:false},{e:"🚗",l:"Into the car",c:false},{e:"🌳",l:"Up a tree",c:false}]},{type:"HOW",q:"What did Theo wish for?",choices:[{e:"❤️",l:"Grandpa's health",c:true},{e:"💰",l:"Lots of money",c:false},{e:"🎮",l:"A video game",c:false},{e:"🚀",l:"A rocket ship",c:false}]}]}
+];
+
+const TOKENS_NEEDED = 5;
+const shuffle = arr => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+// ---- State ----
+let tokens = 0;
+let storyOrder = [];   // shuffled indices
+let orderPos = 0;      // which story we're on in the order
+let currentStoryIdx = 0;
+let currentQ = 0;
+let correctCount = 0;
+let answered = false;
+let shuffledChoices = [];
+let currentSearch = "";
+
+function buildOrder() {
+  storyOrder = shuffle(STORIES.map((_, i) => i));
+  orderPos = 0;
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderTokenBoard(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const left = TOKENS_NEEDED - tokens;
+  el.innerHTML = `<div class="token-board">
+    <div class="token-board-header">
+      <span class="token-board-label">TOKEN BOARD</span>
+      <span class="token-board-msg">${tokens >= TOKENS_NEEDED ? '🎬 Video time!' : left + ' more for your video!'}</span>
+    </div>
+    <div class="token-circles">
+      ${Array.from({length: TOKENS_NEEDED}, (_, i) =>
+        `<div class="token-circle ${i < tokens ? 'filled' : 'empty'}">${i < tokens ? '⭐' : ''}</div>`
+      ).join('')}
+    </div>
+  </div>`;
+}
+
+function updateWelcome() {
+  document.getElementById('token-count').textContent = tokens + '/' + TOKENS_NEEDED;
+  renderTokenBoard('welcome-token-board');
+  const remaining = storyOrder.length - orderPos;
+  document.getElementById('stories-progress').textContent =
+    `📖 ${remaining} of ${STORIES.length} stories left this round`;
+}
+
+function showBurst() {
+  const el = document.createElement('div');
+  el.className = 'burst';
+  el.textContent = '⭐';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function giveToken() {
+  tokens++;
+  document.getElementById('token-count').textContent = tokens + '/' + TOKENS_NEEDED;
+  renderTokenBoard('q-token-board');
+  if (tokens >= TOKENS_NEEDED) setTimeout(showReward, 1100);
+}
+
+function resetTokens() { tokens = 0; }
+
+function startStory() {
+  // If we've run through all stories, reshuffle and announce
+  if (orderPos >= storyOrder.length) {
+    document.getElementById('all-done-banner').style.display = 'block';
+    buildOrder();
+  } else {
+    document.getElementById('all-done-banner').style.display = 'none';
+  }
+
+  currentStoryIdx = storyOrder[orderPos];
+  orderPos++;
+
+  const story = STORIES[currentStoryIdx];
+  // Shuffle choices for each question
+  shuffledChoices = story.questions.map(q => shuffle(q.choices));
+  correctCount = 0; currentQ = 0; answered = false;
+
+  renderTokenBoard('story-token-board');
+  document.getElementById('story-emoji').textContent = story.e;
+  document.getElementById('story-title').textContent = story.title;
+  document.getElementById('story-text').innerHTML = story.story;
+  updateWelcome();
+  showScreen('story');
+}
+
+function goToQuestions() {
+  currentQ = 0; answered = false;
+  renderQuestion();
+  showScreen('questions');
+}
+
+function renderQuestion() {
+  const story = STORIES[currentStoryIdx];
+  const q = story.questions[currentQ];
+  const choices = shuffledChoices[currentQ];
+
+  renderTokenBoard('q-token-board');
+
+  // Dots
+  document.getElementById('q-dots').innerHTML = story.questions.map((_, i) =>
+    `<div class="q-dot ${i < currentQ ? 'done' : i === currentQ ? 'current' : ''}"></div>`
+  ).join('');
+
+  // Badge
+  const badge = document.getElementById('q-badge');
+  badge.textContent = q.type;
+  badge.className = 'type-badge badge-' + q.type;
+
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  questionStartTime = Date.now();
+
+  document.getElementById('choice-grid').innerHTML = choices.map((c, i) =>
+    `<button class="choice-btn" id="ch-${i}" onclick="handleAnswer(${c.c}, ${i})">
+      <span class="emoji">${c.e}</span><span>${c.l}</span>
+    </button>`
+  ).join('');
+}
+
+function handleAnswer(isCorrect, idx) {
+  if (answered) return;
+  answered = true;
+  giveToken();
+
+  const choices = shuffledChoices[currentQ];
+  const chosenLabel = choices[idx].l;
+  logAnswer(isCorrect, chosenLabel);
+  choices.forEach((c, i) => {
+    const btn = document.getElementById('ch-' + i);
+    btn.disabled = true;
+    if (i === idx) btn.classList.add(c.c ? 'correct' : 'wrong');
+    else if (c.c) btn.classList.add('correct');
+  });
+
+  const fb = document.getElementById('feedback');
+  const nb = document.getElementById('next-btn');
+
+  if (isCorrect) {
+    correctCount++;
+    fb.className = 'feedback correct';
+    fb.textContent = '⭐ Amazing! That\'s right!';
+    showBurst();
+  } else {
+    const correct = choices.find(c => c.c);
+    fb.className = 'feedback wrong';
+    fb.textContent = 'Good try! The answer is: ' + correct.e + ' ' + correct.l;
+  }
+  fb.style.display = 'block';
+
+  if (tokens < TOKENS_NEEDED) {
+    const totalQ = STORIES[currentStoryIdx].questions.length;
+    nb.textContent = currentQ < totalQ - 1 ? 'Next ➡️' : 'See My Score! 🏆';
+    nb.style.display = 'block';
+  }
+}
+
+function nextQuestion() {
+  const totalQ = STORIES[currentStoryIdx].questions.length;
+  currentQ++;
+  answered = false;
+  if (currentQ < totalQ) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  const totalQ = STORIES[currentStoryIdx].questions.length;
+  const pct = Math.round((correctCount / totalQ) * 100);
+  document.getElementById('result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🌟' : '💪';
+  document.getElementById('result-title').textContent =
+    pct >= 80 ? 'Amazing job, Michael!' : pct >= 60 ? 'Great work, Michael!' : 'Keep going, Michael!';
+  document.getElementById('result-score').textContent =
+    'You got ' + correctCount + ' out of ' + totalQ + ' right!';
+  renderTokenBoard('result-token-board');
+  showScreen('result');
+  setTimeout(() => { document.getElementById('result-bar').style.width = pct + '%'; }, 100);
+}
+
+function showReward() {
+  const searches = ["Bluey full episodes kids","Mario Bros cartoon for kids","Minecraft funny animation kids",
+    "Pokemon cartoon episodes kids","SpongeBob funny moments","cartoon funny animals kids",
+    "Paw Patrol episodes","funny video game cartoons kids"];
+  currentSearch = searches[Math.floor(Math.random() * searches.length)];
+  document.getElementById('yt-label').textContent = '"' + currentSearch + '"';
+  document.getElementById('yt-hint').textContent = 'Search "' + currentSearch + '" on YouTube if button doesn\'t open';
+  document.getElementById('reward-stars').innerHTML = Array.from({length: TOKENS_NEEDED}).map(() =>
+    `<div style="width:64px;height:64px;border-radius:50%;background:#FFD166;border:4px solid #F5A623;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 12px rgba(245,166,35,0.5);">⭐</div>`
+  ).join('');
+  showScreen('reward');
+}
+
+function openYouTube() {
+  window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(currentSearch), '_blank');
+}
+
+// ---- MySQL Logging ----
+const SHEET_URL = "https://jaloza.com/iep/log.php";
+const sessionId = "s_" + Date.now();
+let questionStartTime = null;
+
+function logAnswer(isCorrect, chosenLabel) {
+  const now = new Date();
+  const story = STORIES[currentStoryIdx];
+  const q = story.questions[currentQ];
+  const responseTimeSec = questionStartTime ? Math.round((Date.now() - questionStartTime) / 1000) : null;
+
+  const payload = {
+    appSource: "story",
+    date: now.toLocaleDateString("en-US"),
+    time: now.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit"}),
+    story: story.title,
+    questionNum: currentQ + 1,
+    questionType: q.type,
+    question: q.q,
+    answerGiven: chosenLabel,
+    correct: isCorrect,
+    responseTimeSec: responseTimeSec,
+    tokensEarned: tokens,
+    sessionId: sessionId
+  };
+
+  fetch(SHEET_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+}
+
+// ---- Init ----
+buildOrder();
+updateWelcome();
+</script>
+</body>
+</html>

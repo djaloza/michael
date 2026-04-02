@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Math Time">
+<title>Math Time</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #FFF8F0; font-family: 'Nunito', sans-serif; overflow-x: hidden; }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  #app { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .logo { font-size: 24px; font-weight: 900; color: #FF9F1C; }
+  .token-pill { display: flex; align-items: center; gap: 8px; background: #FFF3CD; padding: 8px 18px; border-radius: 40px; border: 2px solid #FFD166; }
+  .token-pill strong { font-size: 17px; color: #7A5C00; }
+  .token-board { background: white; border-radius: 24px; border: 3px solid #E8EEF8; padding: 18px 22px; margin-bottom: 20px; }
+  .token-board-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .token-board-label { font-size: 16px; font-weight: 800; color: #6B7280; }
+  .token-board-msg { font-size: 16px; font-weight: 800; color: #FF9F1C; }
+  .token-circles { display: flex; gap: 14px; justify-content: center; }
+  .token-circle { width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; transition: all 0.35s; }
+  .token-circle.empty { background: #F1EFE8; border: 4px solid #D3D1C7; }
+  .token-circle.filled { background: #FFD166; border: 4px solid #F5A623; box-shadow: 0 4px 12px rgba(245,166,35,0.45); transform: scale(1.08); }
+  .card { background: white; border-radius: 24px; border: 3px solid #E8EEF8; padding: 28px; margin-bottom: 20px; }
+  .big-btn { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 800; padding: 20px 52px; border-radius: 60px; border: none; cursor: pointer; min-height: 70px; touch-action: manipulation; color: white; width: 100%; }
+  .big-btn.orange { background: #FF9F1C; box-shadow: 0 6px 0 #c97a00; }
+  .big-btn.green  { background: #06D6A0; box-shadow: 0 6px 0 #04a07a; }
+  .category-badge { display: inline-block; font-size: 16px; font-weight: 800; padding: 8px 22px; border-radius: 24px; margin-bottom: 20px; }
+  .badge-LENGTH   { background: #EEF2FF; color: #4338CA; }
+  .badge-WIDTH    { background: #FEF3C7; color: #92400E; }
+  .badge-CAPACITY { background: #ECFDF5; color: #065F46; }
+  .question-text { font-size: 26px; font-weight: 900; color: #2D2D2D; text-align: center; margin-bottom: 28px; line-height: 1.3; }
+  .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px; }
+  .choice-btn { border-radius: 24px; padding: 24px 14px; font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 800; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 180px; touch-action: manipulation; border: 4px solid #DDE3F0; background: white; color: #2D2D2D; transition: transform 0.1s; }
+  .choice-btn:active { transform: scale(0.97); }
+  .choice-btn .item-emoji { font-size: 72px; line-height: 1; }
+  .choice-btn .item-label { font-size: 20px; font-weight: 800; }
+  .choice-btn.correct { background: #ECFDF5; border-color: #06D6A0; color: #065F46; }
+  .choice-btn.wrong   { background: #FFF1F2; border-color: #EF476F; color: #9F1239; }
+  .choice-btn:disabled { cursor: default; }
+  .feedback { border-radius: 20px; padding: 18px 20px; font-size: 22px; font-weight: 800; text-align: center; margin-top: 16px; display: none; }
+  .feedback.correct { background: #ECFDF5; color: #065F46; }
+  .feedback.wrong   { background: #FFF1F2; color: #9F1239; }
+  .next-btn { width: 100%; margin-top: 16px; background: #FF9F1C; color: white; font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 800; padding: 18px; border-radius: 60px; border: none; cursor: pointer; box-shadow: 0 5px 0 #c97a00; min-height: 64px; touch-action: manipulation; display: none; }
+  .q-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .q-dot { width: 16px; height: 16px; border-radius: 50%; background: #DDE3F0; transition: background 0.3s; }
+  .q-dot.done    { background: #06D6A0; }
+  .q-dot.current { background: #FF9F1C; }
+  .progress-bar-bg { width: 100%; max-width: 340px; margin: 0 auto 24px; height: 18px; background: #DDE3F0; border-radius: 9px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: #06D6A0; border-radius: 9px; transition: width 1s ease-out; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .bounce { animation: bounce 2s infinite; display: inline-block; }
+  .burst { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 120px; z-index: 9999; animation: burst 0.8s ease-out forwards; }
+  .round-counter { font-size: 15px; color: #9CA3AF; font-weight: 700; text-align: center; margin-bottom: 20px; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  @keyframes burst  { 0%{opacity:1;transform:scale(0.5)} 60%{opacity:1;transform:scale(1.3)} 100%{opacity:0;transform:scale(1.8)} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div class="logo">📐 Math Time</div>
+    <div class="token-pill"><span style="font-size:20px">⭐</span><strong id="token-count">0/5</strong></div>
+  </div>
+
+  <!-- WELCOME -->
+  <div id="screen-welcome" class="screen active" style="text-align:center;padding-top:12px;">
+    <div class="bounce" style="font-size:96px;margin-bottom:16px;">📏</div>
+    <div style="font-size:36px;font-weight:900;color:#FF9F1C;margin-bottom:8px;">Hi Michael!</div>
+    <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:6px;">Look at two things. Pick the right answer!</div>
+    <div style="font-size:17px;color:#9CA3AF;font-weight:600;margin-bottom:28px;">Answer 1 question = 1 ⭐ · Fill 5 stars = 🎬 video!</div>
+    <div id="welcome-token-board"></div>
+    <div id="round-counter" class="round-counter"></div>
+    <button class="big-btn orange" onclick="startRound()">Let's Go! 🚀</button>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="screen-question" class="screen">
+    <div id="q-token-board"></div>
+    <div class="q-dots" id="q-dots"></div>
+    <div class="card">
+      <div id="category-badge" class="category-badge"></div>
+      <div id="question-text" class="question-text"></div>
+      <div class="choice-row" id="choice-row"></div>
+      <div id="feedback" class="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()"></button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen" style="text-align:center;padding-top:12px;">
+    <div id="result-emoji" style="font-size:100px;margin-bottom:14px;animation:bounce 1s ease-out;display:inline-block;"></div>
+    <div id="result-title" style="font-size:32px;font-weight:900;margin-bottom:8px;"></div>
+    <div id="result-score" style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:24px;"></div>
+    <div class="progress-bar-bg"><div id="result-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+    <div id="result-token-board"></div>
+    <button class="big-btn green" onclick="startRound()">Play Again! 📐</button>
+  </div>
+
+  <!-- REWARD -->
+  <div id="screen-reward" class="screen" style="text-align:center;padding-top:10px;">
+    <div style="font-size:100px;margin-bottom:10px;">🎬</div>
+    <div style="font-size:36px;font-weight:900;color:#FF9F1C;margin-bottom:8px;">You earned a video!</div>
+    <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:28px;">Awesome work, Michael! 🎉</div>
+    <div id="reward-stars" style="display:flex;gap:14px;justify-content:center;margin-bottom:28px;"></div>
+    <div style="background:#FFF8F0;border-radius:22px;padding:24px 28px;margin-bottom:28px;">
+      <div style="font-size:16px;color:#6B7280;font-weight:600;margin-bottom:6px;">Your video reward:</div>
+      <div id="yt-label" style="font-size:20px;font-weight:800;color:#2D2D2D;margin-bottom:18px;"></div>
+      <button onclick="openYouTube()" style="width:100%;background:#FF0000;color:white;font-family:'Nunito',sans-serif;font-size:24px;font-weight:800;padding:18px;border-radius:60px;border:none;cursor:pointer;box-shadow:0 5px 0 #b00000;min-height:70px;touch-action:manipulation;">▶ Watch on YouTube!</button>
+      <div style="font-size:13px;color:#9CA3AF;margin-top:10px;" id="yt-hint"></div>
+    </div>
+    <button class="big-btn orange" onclick="resetTokens();showScreen('welcome')">Keep Playing! 📐</button>
+  </div>
+</div>
+
+<script>
+const LOG_URL = "https://jaloza.com/iep/log.php";
+const TOKENS_NEEDED = 5;
+const sessionId = "m_" + Date.now();
+const VIDEO_SEARCHES = [
+  "Bluey full episodes kids","Mario Bros cartoon for kids","Minecraft funny animation kids",
+  "Pokemon cartoon episodes kids","SpongeBob funny moments","Paw Patrol episodes",
+  "cartoon funny animals kids","funny video game cartoons kids"
+];
+
+// ---- Question Bank ----
+// Each question: category, question text, two choices (emoji + label), correct index (0 or 1)
+const QUESTIONS = [
+  // LENGTH
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🐍",l:"Snake"},      b:{e:"🐛",l:"Worm"},       correct:0},
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🚂",l:"Train"},      b:{e:"🚗",l:"Car"},        correct:0},
+  {cat:"LENGTH", q:"Which one is SHORTER?",      a:{e:"✏️",l:"Pencil"},     b:{e:"📏",l:"Ruler"},      correct:0},
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🌴",l:"Palm tree"},  b:{e:"🌱",l:"Sprout"},     correct:0},
+  {cat:"LENGTH", q:"Which one is SHORTER?",      a:{e:"🐜",l:"Ant"},        b:{e:"🐘",l:"Elephant"},   correct:0},
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🛣️",l:"Road"},       b:{e:"🚪",l:"Door"},       correct:0},
+  {cat:"LENGTH", q:"Which one is SHORTER?",      a:{e:"🖊️",l:"Pen"},        b:{e:"🪄",l:"Wand"},       correct:0},
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🐊",l:"Crocodile"},  b:{e:"🐸",l:"Frog"},       correct:0},
+  {cat:"LENGTH", q:"Which one is SHORTER?",      a:{e:"🐇",l:"Rabbit"},     b:{e:"🦒",l:"Giraffe"},    correct:0},
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🌊",l:"River"},      b:{e:"🛁",l:"Bathtub"},    correct:0},
+  {cat:"LENGTH", q:"Which one is SHORTER?",      a:{e:"🍄",l:"Mushroom"},   b:{e:"🌵",l:"Cactus"},     correct:0},
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🐉",l:"Dragon"},     b:{e:"🦎",l:"Lizard"},     correct:0},
+  {cat:"LENGTH", q:"Which one is SHORTER?",      a:{e:"🥄",l:"Spoon"},      b:{e:"🍴",l:"Fork"},       correct:0},
+  {cat:"LENGTH", q:"Which one is LONGER?",       a:{e:"🛤️",l:"Railway"},    b:{e:"🏠",l:"House"},      correct:0},
+  {cat:"LENGTH", q:"Which one is SHORTER?",      a:{e:"🐣",l:"Chick"},      b:{e:"🦅",l:"Eagle"},      correct:0},
+
+  // WIDTH
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"🚪",l:"Door"},       b:{e:"🪟",l:"Window"},     correct:0},
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"🛣️",l:"Highway"},    b:{e:"🛤️",l:"Path"},       correct:0},
+  {cat:"WIDTH",  q:"Which one is NARROWER?",     a:{e:"🖊️",l:"Pen"},        b:{e:"🪣",l:"Bucket"},     correct:0},
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"🛋️",l:"Sofa"},       b:{e:"🪑",l:"Chair"},      correct:0},
+  {cat:"WIDTH",  q:"Which one is NARROWER?",     a:{e:"🌿",l:"Blade of grass"}, b:{e:"🌳",l:"Tree trunk"}, correct:0},
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"🏊",l:"Pool"},       b:{e:"🛁",l:"Bathtub"},    correct:0},
+  {cat:"WIDTH",  q:"Which one is NARROWER?",     a:{e:"🪡",l:"Thread"},     b:{e:"🧱",l:"Brick"},      correct:0},
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"🏟️",l:"Stadium"},    b:{e:"🏠",l:"House"},      correct:0},
+  {cat:"WIDTH",  q:"Which one is NARROWER?",     a:{e:"🐜",l:"Ant trail"},  b:{e:"🛣️",l:"Road"},       correct:0},
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"🌊",l:"Ocean wave"}, b:{e:"🚿",l:"Shower"},     correct:0},
+  {cat:"WIDTH",  q:"Which one is NARROWER?",     a:{e:"🪲",l:"Bug"},        b:{e:"🐘",l:"Elephant"},   correct:0},
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"🛏️",l:"Bed"},        b:{e:"📚",l:"Book"},       correct:0},
+  {cat:"WIDTH",  q:"Which one is NARROWER?",     a:{e:"🔑",l:"Key"},        b:{e:"🚗",l:"Car"},        correct:0},
+  {cat:"WIDTH",  q:"Which one is WIDER?",        a:{e:"⛪",l:"Church"},     b:{e:"🏡",l:"Cottage"},    correct:0},
+  {cat:"WIDTH",  q:"Which one is NARROWER?",     a:{e:"🥢",l:"Chopstick"},  b:{e:"🥄",l:"Spoon"},      correct:0},
+
+  // CAPACITY
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🪣",l:"Bucket"},     b:{e:"🥤",l:"Cup"},        correct:0},
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🛁",l:"Bathtub"},    b:{e:"🥛",l:"Glass"},      correct:0},
+  {cat:"CAPACITY", q:"Which one holds LESS?",    a:{e:"🥄",l:"Spoon"},      b:{e:"🪣",l:"Bucket"},     correct:0},
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🏊",l:"Pool"},       b:{e:"🛁",l:"Bathtub"},    correct:0},
+  {cat:"CAPACITY", q:"Which one holds LESS?",    a:{e:"🍶",l:"Small bottle"}, b:{e:"🛢️",l:"Barrel"},   correct:0},
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🧴",l:"Bottle"},     b:{e:"🥄",l:"Spoon"},      correct:0},
+  {cat:"CAPACITY", q:"Which one holds LESS?",    a:{e:"🧃",l:"Juice box"},  b:{e:"🪣",l:"Bucket"},     correct:0},
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🌊",l:"Lake"},       b:{e:"🥤",l:"Cup"},        correct:0},
+  {cat:"CAPACITY", q:"Which one holds LESS?",    a:{e:"🍵",l:"Teacup"},     b:{e:"🛁",l:"Bathtub"},    correct:0},
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🚿",l:"Shower tank"}, b:{e:"🥛",l:"Glass"},     correct:0},
+  {cat:"CAPACITY", q:"Which one holds LESS?",    a:{e:"🫙",l:"Small jar"},  b:{e:"🛢️",l:"Barrel"},     correct:0},
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🏗️",l:"Water tower"}, b:{e:"🧴",l:"Bottle"},    correct:0},
+  {cat:"CAPACITY", q:"Which one holds LESS?",    a:{e:"🥚",l:"Egg cup"},    b:{e:"🪣",l:"Bucket"},     correct:0},
+  {cat:"CAPACITY", q:"Which one holds MORE?",    a:{e:"🛢️",l:"Oil drum"},   b:{e:"🥤",l:"Cup"},        correct:0},
+  {cat:"CAPACITY", q:"Which one holds LESS?",    a:{e:"🫗",l:"Tiny cup"},   b:{e:"🏊",l:"Pool"},       correct:0},
+];
+
+// ---- Shuffle ----
+const shuffle = arr => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+// ---- State ----
+let tokens = 0;
+let currentQ = 0;
+let correctCount = 0;
+let answered = false;
+let roundQuestions = [];   // 5 questions per round, shuffled
+let questionStartTime = null;
+let currentSearch = "";
+let roundNum = 0;
+
+// Build a balanced round: ~2 LENGTH, ~2 WIDTH, ~1 CAPACITY (or fully random from all 45)
+function buildRound() {
+  const shuffled = shuffle(QUESTIONS);
+  // Pick 5 spread across categories
+  const length   = shuffled.filter(q => q.cat === "LENGTH").slice(0, 2);
+  const width    = shuffled.filter(q => q.cat === "WIDTH").slice(0, 2);
+  const capacity = shuffled.filter(q => q.cat === "CAPACITY").slice(0, 1);
+  return shuffle([...length, ...width, ...capacity]);
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderTokenBoard(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const left = TOKENS_NEEDED - tokens;
+  el.innerHTML = `<div class="token-board">
+    <div class="token-board-header">
+      <span class="token-board-label">TOKEN BOARD</span>
+      <span class="token-board-msg">${tokens >= TOKENS_NEEDED ? '🎬 Video time!' : left + ' more for your video!'}</span>
+    </div>
+    <div class="token-circles">
+      ${Array.from({length: TOKENS_NEEDED}, (_, i) =>
+        `<div class="token-circle ${i < tokens ? 'filled' : 'empty'}">${i < tokens ? '⭐' : ''}</div>`
+      ).join('')}
+    </div>
+  </div>`;
+}
+
+function updateWelcome() {
+  document.getElementById('token-count').textContent = tokens + '/' + TOKENS_NEEDED;
+  renderTokenBoard('welcome-token-board');
+  document.getElementById('round-counter').textContent =
+    roundNum > 0 ? `Round ${roundNum} complete · ${tokens} ⭐ earned so far` : '5 questions per round · 3 categories';
+}
+
+function showBurst() {
+  const el = document.createElement('div');
+  el.className = 'burst';
+  el.textContent = '⭐';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function giveToken() {
+  tokens++;
+  document.getElementById('token-count').textContent = tokens + '/' + TOKENS_NEEDED;
+  renderTokenBoard('q-token-board');
+  if (tokens >= TOKENS_NEEDED) setTimeout(showReward, 1100);
+}
+
+function resetTokens() { tokens = 0; }
+
+function startRound() {
+  roundNum++;
+  roundQuestions = buildRound();
+  currentQ = 0; correctCount = 0; answered = false;
+  renderQuestion();
+  showScreen('question');
+}
+
+function renderQuestion() {
+  const q = roundQuestions[currentQ];
+  renderTokenBoard('q-token-board');
+
+  // Dots
+  document.getElementById('q-dots').innerHTML = roundQuestions.map((_, i) =>
+    `<div class="q-dot ${i < currentQ ? 'done' : i === currentQ ? 'current' : ''}"></div>`
+  ).join('');
+
+  // Badge
+  const badge = document.getElementById('category-badge');
+  badge.textContent = q.cat === 'LENGTH' ? '📏 LENGTH' : q.cat === 'WIDTH' ? '↔️ WIDTH' : '🥤 CAPACITY';
+  badge.className = 'category-badge badge-' + q.cat;
+
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+
+  // Randomly swap left/right so correct answer isn't always on same side
+  const flipped = Math.random() > 0.5;
+  const left  = flipped ? q.b : q.a;
+  const right = flipped ? q.a : q.b;
+  const leftCorrect  = flipped ? (q.correct === 1) : (q.correct === 0);
+  const rightCorrect = flipped ? (q.correct === 0) : (q.correct === 1);
+
+  document.getElementById('choice-row').innerHTML = `
+    <button class="choice-btn" id="btn-left"  onclick="handleAnswer(${leftCorrect},  'left',  '${left.l}')">
+      <span class="item-emoji">${left.e}</span>
+      <span class="item-label">${left.l}</span>
+    </button>
+    <button class="choice-btn" id="btn-right" onclick="handleAnswer(${rightCorrect}, 'right', '${right.l}')">
+      <span class="item-emoji">${right.e}</span>
+      <span class="item-label">${right.l}</span>
+    </button>`;
+
+  questionStartTime = Date.now();
+}
+
+function handleAnswer(isCorrect, side, chosenLabel) {
+  if (answered) return;
+  answered = true;
+  giveToken();
+
+  const q = roundQuestions[currentQ];
+  const responseTimeSec = Math.round((Date.now() - questionStartTime) / 1000);
+
+  // Visual feedback
+  const chosen = document.getElementById('btn-' + side);
+  const other  = document.getElementById(side === 'left' ? 'btn-right' : 'btn-left');
+  chosen.disabled = true;
+  other.disabled  = true;
+  chosen.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) other.classList.add('correct');
+
+  const fb = document.getElementById('feedback');
+  if (isCorrect) {
+    correctCount++;
+    fb.className = 'feedback correct';
+    fb.textContent = '⭐ That\'s right!';
+    showBurst();
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = 'Good try! Look at the green one — that\'s the answer!';
+  }
+  fb.style.display = 'block';
+
+  // Log to MySQL
+  logAnswer(q, chosenLabel, isCorrect, responseTimeSec);
+
+  if (tokens < TOKENS_NEEDED) {
+    const nb = document.getElementById('next-btn');
+    nb.textContent = currentQ < roundQuestions.length - 1 ? 'Next ➡️' : 'See My Score! 🏆';
+    nb.style.display = 'block';
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  answered = false;
+  if (currentQ < roundQuestions.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  const total = roundQuestions.length;
+  const pct = Math.round((correctCount / total) * 100);
+  document.getElementById('result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🌟' : '💪';
+  document.getElementById('result-title').textContent =
+    pct >= 80 ? 'Amazing job, Michael!' : pct >= 60 ? 'Great work, Michael!' : 'Keep going, Michael!';
+  document.getElementById('result-score').textContent =
+    'You got ' + correctCount + ' out of ' + total + ' right!';
+  renderTokenBoard('result-token-board');
+  updateWelcome();
+  showScreen('result');
+  setTimeout(() => { document.getElementById('result-bar').style.width = pct + '%'; }, 100);
+}
+
+function showReward() {
+  const searches = VIDEO_SEARCHES;
+  currentSearch = searches[Math.floor(Math.random() * searches.length)];
+  document.getElementById('yt-label').textContent = '"' + currentSearch + '"';
+  document.getElementById('yt-hint').textContent = 'Search "' + currentSearch + '" on YouTube if button doesn\'t open';
+  document.getElementById('reward-stars').innerHTML = Array.from({length: TOKENS_NEEDED}).map(() =>
+    `<div style="width:64px;height:64px;border-radius:50%;background:#FFD166;border:4px solid #F5A623;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 12px rgba(245,166,35,0.5);">⭐</div>`
+  ).join('');
+  showScreen('reward');
+}
+
+function openYouTube() {
+  window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(currentSearch), '_blank');
+}
+
+function logAnswer(q, chosenLabel, isCorrect, responseTimeSec) {
+  const now = new Date();
+  const payload = {
+    appSource: "math",
+    date: now.toLocaleDateString("en-US"),
+    time: now.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit"}),
+    category: q.cat,
+    question: q.q,
+    correctAnswer: q.correct === 0 ? q.a.l : q.b.l,
+    answerGiven: chosenLabel,
+    correct: isCorrect,
+    responseTimeSec: responseTimeSec,
+    tokensEarned: tokens,
+    sessionId: sessionId
+  };
+
+  fetch(LOG_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+}
+
+// ---- Init ----
+updateWelcome();
+</script>
+</body>
+</html>
