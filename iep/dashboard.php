@@ -18,6 +18,8 @@
   .btn-blue { background: #5B8DEF; }
   .btn-green { background: #06D6A0; }
   .btn-orange { background: #FF9F1C; }
+  .btn-red { background: #EF476F; }
+  .btn-red:hover { background: #d63a5f; }
   .content { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 32px; }
   .stat-card { background: white; border-radius: 20px; padding: 24px; border: 3px solid #E8EEF8; }
@@ -119,6 +121,10 @@ $weeklyStory = $pdo->query("
   <a class="btn btn-green" id="exportStory" href="#">⬇ Export Story Data</a>
   <a class="btn btn-blue"  id="exportMath"  href="#">⬇ Export Math Data</a>
   <a class="btn btn-orange" onclick="window.print()">🖨 Print Report</a>
+  <span style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+    <button class="btn btn-red" onclick="clearData('test')">🧪 Clear Test Data</button>
+    <button class="btn btn-red" onclick="clearData('all')" style="opacity:0.75;">⚠️ Clear All Data</button>
+  </span>
 </div>
 
 <div class="content">
@@ -292,6 +298,25 @@ document.getElementById('exportMath').addEventListener('click', function(e) {
   e.preventDefault();
   window.location.href = buildExportUrl('math');
 });
+
+async function clearData(scope) {
+  const label = scope === 'test' ? 'test data' : 'ALL data (this cannot be undone)';
+  if (!confirm('Are you sure you want to delete ' + label + '?')) return;
+  if (scope === 'all' && !confirm('Second confirmation: permanently delete ALL story and math responses?')) return;
+
+  const resp = await fetch('log.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({action: 'clear', scope: scope, dataset: 'all'})
+  });
+  const data = await resp.json();
+  if (data.status === 'ok') {
+    alert((scope === 'test' ? 'Test data' : 'All data') + ' cleared.');
+    location.reload();
+  } else {
+    alert('Error: ' + (data.message || 'unknown'));
+  }
+}
 </script>
 </body>
 </html>

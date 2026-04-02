@@ -13,7 +13,10 @@
   html, body { height: 100%; background: #FFF8F0; font-family: 'Nunito', sans-serif; overflow-x: hidden; }
   body { padding-bottom: env(safe-area-inset-bottom); }
   #app { max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; }
-  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
+  .test-toggle { font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; padding: 6px 14px; border-radius: 20px; border: 2px solid #DDE3F0; background: white; color: #9CA3AF; cursor: pointer; }
+  .test-toggle.active { background: #FFF1F2; border-color: #EF476F; color: #9F1239; }
+  .test-banner { background: #FFF1F2; border: 2px solid #EF476F; border-radius: 10px; padding: 8px 16px; font-size: 14px; font-weight: 800; color: #9F1239; text-align: center; margin-bottom: 16px; display: none; }
   .logo { font-size: 24px; font-weight: 900; color: #5B8DEF; }
   .token-pill { display: flex; align-items: center; gap: 8px; background: #FFF3CD; padding: 8px 18px; border-radius: 40px; border: 2px solid #FFD166; }
   .token-pill strong { font-size: 17px; color: #7A5C00; }
@@ -69,8 +72,12 @@
 <div id="app">
   <div class="top-bar">
     <div class="logo">📚 Story Time</div>
-    <div class="token-pill"><span style="font-size:20px">⭐</span><strong id="token-count">0/5</strong></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="test-toggle" id="test-toggle" onclick="toggleTestMode()">🧪 Test Mode</button>
+      <div class="token-pill"><span style="font-size:20px">⭐</span><strong id="token-count">0/5</strong></div>
+    </div>
   </div>
+  <div class="test-banner" id="test-banner">🧪 TEST MODE — answers will NOT count toward real data</div>
 
   <!-- WELCOME -->
   <div id="screen-welcome" class="screen active" style="text-align:center;padding-top:12px;">
@@ -402,6 +409,14 @@ function openYouTube() {
 const SHEET_URL = "https://jaloza.com/michael/iep/log.php";
 const sessionId = "s_" + Date.now();
 let questionStartTime = null;
+let isTestMode = false;
+
+function toggleTestMode() {
+  isTestMode = !isTestMode;
+  document.getElementById('test-toggle').classList.toggle('active', isTestMode);
+  const banner = document.getElementById('test-banner');
+  banner.style.display = isTestMode ? 'block' : 'none';
+}
 
 function logAnswer(isCorrect, chosenLabel) {
   const now = new Date();
@@ -421,7 +436,8 @@ function logAnswer(isCorrect, chosenLabel) {
     correct: isCorrect,
     responseTimeSec: responseTimeSec,
     tokensEarned: tokens,
-    sessionId: sessionId
+    sessionId: sessionId,
+    isTest: isTestMode
   };
 
   fetch(SHEET_URL, {

@@ -30,12 +30,37 @@ if (!$data) {
     exit();
 }
 
-$source = isset($data['appSource']) ? $data['appSource'] : 'story';
+// ── CLEAR ACTION ──────────────────────────────────────────────
+if (isset($data['action']) && $data['action'] === 'clear') {
+    $scope   = $data['scope']   ?? '';   // 'test' or 'all'
+    $dataset = $data['dataset'] ?? 'all'; // 'story', 'math', or 'all'
+
+    if (!in_array($scope, ['test', 'all']) || !in_array($dataset, ['story', 'math', 'all'])) {
+        echo json_encode(["status" => "error", "message" => "Invalid scope or dataset"]);
+        exit();
+    }
+
+    $where = $scope === 'test' ? 'WHERE is_test = 1' : '';
+
+    if ($dataset === 'story' || $dataset === 'all') {
+        $pdo->exec("DELETE FROM story_responses $where");
+    }
+    if ($dataset === 'math' || $dataset === 'all') {
+        $pdo->exec("DELETE FROM math_responses $where");
+    }
+
+    echo json_encode(["status" => "ok"]);
+    exit();
+}
+
+// ── LOG ANSWER ────────────────────────────────────────────────
+$source  = isset($data['appSource']) ? $data['appSource'] : 'story';
+$is_test = !empty($data['isTest']) ? 1 : 0;
 
 if ($source === 'math') {
-    $sql = "INSERT INTO math_responses 
-            (date, time, category, question, correct_answer, answer_given, correct, response_time_sec, tokens_earned, session_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO math_responses
+            (date, time, category, question, correct_answer, answer_given, correct, response_time_sec, tokens_earned, session_id, is_test)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $data['date'],
@@ -47,12 +72,13 @@ if ($source === 'math') {
         $data['correct'] ? 1 : 0,
         $data['responseTimeSec'],
         $data['tokensEarned'],
-        $data['sessionId']
+        $data['sessionId'],
+        $is_test
     ]);
 } else {
-    $sql = "INSERT INTO story_responses 
-            (date, time, story, question_num, question_type, question, answer_given, correct, response_time_sec, tokens_earned, session_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO story_responses
+            (date, time, story, question_num, question_type, question, answer_given, correct, response_time_sec, tokens_earned, session_id, is_test)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $data['date'],
@@ -65,7 +91,8 @@ if ($source === 'math') {
         $data['correct'] ? 1 : 0,
         $data['responseTimeSec'],
         $data['tokensEarned'],
-        $data['sessionId']
+        $data['sessionId'],
+        $is_test
     ]);
 }
 
