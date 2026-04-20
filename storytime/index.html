@@ -17,6 +17,8 @@
   .test-toggle { font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; padding: 6px 14px; border-radius: 20px; border: 2px solid #DDE3F0; background: white; color: #9CA3AF; cursor: pointer; }
   .test-toggle.active { background: #FFF1F2; border-color: #EF476F; color: #9F1239; }
   .test-banner { background: #FFF1F2; border: 2px solid #EF476F; border-radius: 10px; padding: 8px 16px; font-size: 14px; font-weight: 800; color: #9F1239; text-align: center; margin-bottom: 16px; display: none; }
+  .guest-banner { background: #FEE2E2; border: 3px solid #DC2626; border-radius: 12px; padding: 14px 16px; font-size: 24px; font-weight: 900; color: #DC2626; text-align: center; margin-bottom: 16px; display: none; letter-spacing: 0.3px; }
+  .student-select { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; padding: 7px 14px; border-radius: 20px; border: 2px solid #DDE3F0; background: white; color: #6B7280; cursor: pointer; touch-action: manipulation; }
   .logo { font-size: 24px; font-weight: 900; color: #5B8DEF; }
   .token-pill { display: flex; align-items: center; gap: 8px; background: #FFF3CD; padding: 8px 18px; border-radius: 40px; border: 2px solid #FFD166; }
   .token-pill strong { font-size: 17px; color: #7A5C00; }
@@ -76,11 +78,21 @@
       <div class="logo">📚 Story Time</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
+      <select class="student-select" id="student-select" onchange="changeStudent(this.value)">
+        <option value="Michael">👦 Michael</option>
+        <option value="A">Student A</option>
+        <option value="B">Student B</option>
+        <option value="C">Student C</option>
+        <option value="D">Student D</option>
+        <option value="E">Student E</option>
+        <option value="F">Student F</option>
+      </select>
       <button class="test-toggle" id="test-toggle" onclick="toggleTestMode()">🧪 Test Mode</button>
       <div class="token-pill"><span style="font-size:20px">⭐</span><strong id="token-count">0/5</strong></div>
     </div>
   </div>
   <div class="test-banner" id="test-banner">🧪 TEST MODE — answers will NOT count toward real data</div>
+  <div class="guest-banner" id="guest-banner">⚠️ DATA FOR THESE STUDENTS IS NOT TRACKED ⚠️</div>
 
   <!-- WELCOME -->
   <div id="screen-welcome" class="screen active" style="text-align:center;padding-top:12px;">
@@ -413,6 +425,13 @@ const SHEET_URL = "https://jaloza.com/michael/iep/log.php";
 const sessionId = "s_" + Date.now();
 let questionStartTime = null;
 let isTestMode = false;
+let currentStudent = 'Michael';
+
+function changeStudent(val) {
+  currentStudent = val;
+  const isGuest = val !== 'Michael';
+  document.getElementById('guest-banner').style.display = isGuest ? 'block' : 'none';
+}
 
 function toggleTestMode() {
   isTestMode = !isTestMode;
@@ -422,6 +441,7 @@ function toggleTestMode() {
 }
 
 function logAnswer(isCorrect, chosenLabel) {
+  if (currentStudent !== 'Michael') return;
   const now = new Date();
   const story = STORIES[currentStoryIdx];
   const q = story.questions[currentQ];
