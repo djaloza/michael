@@ -48,6 +48,15 @@ if (isset($data['action']) && $data['action'] === 'clear') {
     if ($dataset === 'math' || $dataset === 'all') {
         $pdo->exec("DELETE FROM math_responses $where");
     }
+    if ($dataset === 'clock' || $dataset === 'all') {
+        $pdo->exec("DELETE FROM clock_responses" . ($scope === 'test' ? " WHERE 1=0" : ""));
+    }
+    if ($dataset === 'shapes' || $dataset === 'all') {
+        $pdo->exec("DELETE FROM shapes_responses" . ($scope === 'test' ? " WHERE 1=0" : ""));
+    }
+    if ($dataset === 'vocabulary' || $dataset === 'all') {
+        $pdo->exec("DELETE FROM vocabulary_responses" . ($scope === 'test' ? " WHERE 1=0" : ""));
+    }
 
     echo json_encode(["status" => "ok"]);
     exit();
@@ -57,7 +66,55 @@ if (isset($data['action']) && $data['action'] === 'clear') {
 $source  = isset($data['appSource']) ? $data['appSource'] : 'story';
 $is_test = !empty($data['isTest']) ? 1 : 0;
 
-if ($source === 'math') {
+if ($source === 'clock') {
+    $sql = "INSERT INTO clock_responses
+            (date, time, question_type, time_shown, answer_given, correct, response_time_sec, tokens_earned, session_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        $data['date'],
+        $data['time'],
+        $data['questionType'],
+        $data['timeShown'],
+        $data['answerGiven'],
+        $data['correct'] ? 1 : 0,
+        $data['responseTimeSec'],
+        $data['tokensEarned'],
+        $data['sessionId']
+    ]);
+} elseif ($source === 'shapes') {
+    $sql = "INSERT INTO shapes_responses
+            (date, time, mode, question, answer_given, correct, response_time_sec, tokens_earned, session_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        $data['date'],
+        $data['time'],
+        $data['mode'],
+        $data['question'],
+        $data['answerGiven'],
+        $data['correct'] ? 1 : 0,
+        $data['responseTimeSec'],
+        $data['tokensEarned'],
+        $data['sessionId']
+    ]);
+} elseif ($source === 'vocabulary') {
+    $sql = "INSERT INTO vocabulary_responses
+            (date, time, word, sentence_shown, answer_given, correct, response_time_sec, tokens_earned, session_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        $data['date'],
+        $data['time'],
+        $data['word'],
+        $data['sentenceShown'],
+        $data['answerGiven'],
+        $data['correct'] ? 1 : 0,
+        $data['responseTimeSec'],
+        $data['tokensEarned'],
+        $data['sessionId']
+    ]);
+} elseif ($source === 'math') {
     $sql = "INSERT INTO math_responses
             (date, time, category, question, correct_answer, answer_given, correct, response_time_sec, tokens_earned, session_id, is_test)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";

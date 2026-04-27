@@ -40,6 +40,8 @@
   .badge-WHEN   { background: #ECFDF5; color: #065F46; }
   .badge-WHERE  { background: #FFF1F2; color: #9F1239; }
   .badge-HOW    { background: #F5F3FF; color: #5B21B6; }
+  .badge-CAUSE  { background: #FFF1F2; color: #9F1239; }
+  .badge-WHY    { background: #ECFDF5; color: #065F46; }
   .badge-LENGTH   { background: #EEF2FF; color: #4338CA; }
   .badge-WIDTH    { background: #FEF3C7; color: #92400E; }
   .badge-CAPACITY { background: #ECFDF5; color: #065F46; }
@@ -94,6 +96,29 @@ $recentStory = $pdo->query("SELECT date, time, story, question_type, question, a
 
 // Recent math responses
 $recentMath = $pdo->query("SELECT date, time, category, question, answer_given, correct, response_time_sec FROM math_responses ORDER BY created_at DESC LIMIT 20")->fetchAll(PDO::FETCH_ASSOC);
+
+// ---- Clock stats ----
+$totalClock   = $pdo->query("SELECT COUNT(*) FROM clock_responses")->fetchColumn();
+$correctClock = $pdo->query("SELECT COUNT(*) FROM clock_responses WHERE correct=1")->fetchColumn();
+$clockPct     = $totalClock > 0 ? round(($correctClock / $totalClock) * 100) : 0;
+$clockByType  = $pdo->query("SELECT question_type, COUNT(*) as total, SUM(correct) as correct FROM clock_responses GROUP BY question_type ORDER BY question_type")->fetchAll(PDO::FETCH_ASSOC);
+$recentClock  = $pdo->query("SELECT date, time, question_type, time_shown, answer_given, correct, response_time_sec FROM clock_responses ORDER BY created_at DESC LIMIT 15")->fetchAll(PDO::FETCH_ASSOC);
+$weeklyClockQ = $pdo->query("SELECT WEEK(created_at) as wk, YEAR(created_at) as yr, COUNT(*) as total, SUM(correct) as correct FROM clock_responses GROUP BY YEAR(created_at), WEEK(created_at) ORDER BY yr DESC, wk DESC LIMIT 4")->fetchAll(PDO::FETCH_ASSOC);
+
+// ---- Shapes stats ----
+$totalShapes   = $pdo->query("SELECT COUNT(*) FROM shapes_responses")->fetchColumn();
+$correctShapes = $pdo->query("SELECT COUNT(*) FROM shapes_responses WHERE correct=1")->fetchColumn();
+$shapesPct     = $totalShapes > 0 ? round(($correctShapes / $totalShapes) * 100) : 0;
+$shapesByMode  = $pdo->query("SELECT mode, COUNT(*) as total, SUM(correct) as correct FROM shapes_responses GROUP BY mode ORDER BY mode")->fetchAll(PDO::FETCH_ASSOC);
+$recentShapes  = $pdo->query("SELECT date, time, mode, question, answer_given, correct, response_time_sec FROM shapes_responses ORDER BY created_at DESC LIMIT 15")->fetchAll(PDO::FETCH_ASSOC);
+$weeklyShapesQ = $pdo->query("SELECT WEEK(created_at) as wk, YEAR(created_at) as yr, COUNT(*) as total, SUM(correct) as correct FROM shapes_responses GROUP BY YEAR(created_at), WEEK(created_at) ORDER BY yr DESC, wk DESC LIMIT 4")->fetchAll(PDO::FETCH_ASSOC);
+
+// ---- Vocabulary stats ----
+$totalVocab   = $pdo->query("SELECT COUNT(*) FROM vocabulary_responses")->fetchColumn();
+$correctVocab = $pdo->query("SELECT COUNT(*) FROM vocabulary_responses WHERE correct=1")->fetchColumn();
+$vocabPct     = $totalVocab > 0 ? round(($correctVocab / $totalVocab) * 100) : 0;
+$vocabByWord  = $pdo->query("SELECT word, COUNT(*) as total, SUM(correct) as correct FROM vocabulary_responses GROUP BY word ORDER BY word")->fetchAll(PDO::FETCH_ASSOC);
+$recentVocab  = $pdo->query("SELECT date, time, word, answer_given, correct, response_time_sec FROM vocabulary_responses ORDER BY created_at DESC LIMIT 15")->fetchAll(PDO::FETCH_ASSOC);
 
 // Weekly trend (last 4 weeks story)
 $weeklyStory = $pdo->query("
@@ -160,6 +185,21 @@ $weeklyStory = $pdo->query("
       <div class="label">MATH ACCURACY</div>
       <div class="value"><?= $mathPct ?>%</div>
       <div class="sub"><?= $correctMath ?> correct of <?= $totalMath ?> answered</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">CLOCK ACCURACY</div>
+      <div class="value"><?= $clockPct ?>%</div>
+      <div class="sub"><?= $correctClock ?> correct of <?= $totalClock ?> answered</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">SHAPES ACCURACY</div>
+      <div class="value"><?= $shapesPct ?>%</div>
+      <div class="sub"><?= $correctShapes ?> correct of <?= $totalShapes ?> answered</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">VOCAB ACCURACY</div>
+      <div class="value"><?= $vocabPct ?>%</div>
+      <div class="sub"><?= $correctVocab ?> correct of <?= $totalVocab ?> answered</div>
     </div>
     <div class="stat-card">
       <div class="label">TOTAL SESSIONS</div>
@@ -271,6 +311,179 @@ $weeklyStory = $pdo->query("
         <td><?= htmlspecialchars($r['date']) ?> <?= htmlspecialchars($r['time']) ?></td>
         <td><span class="badge badge-<?= $r['category'] ?>"><?= $r['category'] ?></span></td>
         <td><?= htmlspecialchars($r['question']) ?></td>
+        <td><?= htmlspecialchars($r['answer_given']) ?></td>
+        <td><span class="badge <?= $r['correct'] ? 'badge-yes' : 'badge-no' ?>"><?= $r['correct'] ? 'YES' : 'NO' ?></span></td>
+        <td><?= $r['response_time_sec'] ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+  </div>
+
+  <!-- Clock accuracy by type -->
+  <div class="section">
+    <h2>🕐 Clock Time — Accuracy by Question Type</h2>
+    <?php if (empty($clockByType)): ?>
+      <p style="color:#9CA3AF">No clock data yet.</p>
+    <?php else: ?>
+      <?php foreach ($clockByType as $row):
+        $pct = $row['total'] > 0 ? round(($row['correct'] / $row['total']) * 100) : 0;
+        $color = $pct >= 80 ? '#06D6A0' : ($pct >= 60 ? '#FFD166' : '#EF476F');
+        $label = $row['question_type'] === 'read_clock' ? 'Read Clock' : 'Match Clock';
+      ?>
+      <div class="progress-row">
+        <div class="progress-label"><span class="badge" style="background:#F3EEFF;color:#7B5EA7"><?= $label ?></span></div>
+        <div class="progress-bg"><div class="progress-fill" style="width:<?= $pct ?>%;background:<?= $color ?>;"></div></div>
+        <div class="progress-pct" style="color:<?= $color ?>"><?= $pct ?>%</div>
+        <div style="font-size:13px;color:#9CA3AF;width:80px;"><?= $row['correct'] ?>/<?= $row['total'] ?></div>
+      </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  </div>
+
+  <!-- Clock weekly trend -->
+  <?php if (!empty($weeklyClockQ)): ?>
+  <div class="section">
+    <h2>📈 Weekly Clock Trend (last 4 weeks)</h2>
+    <table>
+      <tr><th>Week</th><th>Questions</th><th>Correct</th><th>Accuracy</th></tr>
+      <?php foreach (array_reverse($weeklyClockQ) as $w):
+        $pct = $w['total'] > 0 ? round(($w['correct'] / $w['total']) * 100) : 0;
+        $color = $pct >= 80 ? '#06D6A0' : ($pct >= 60 ? '#FFD166' : '#EF476F');
+      ?>
+      <tr>
+        <td>Week <?= $w['wk'] ?>, <?= $w['yr'] ?></td>
+        <td><?= $w['total'] ?></td>
+        <td><?= $w['correct'] ?></td>
+        <td><strong style="color:<?= $color ?>"><?= $pct ?>%</strong></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+  </div>
+  <?php endif; ?>
+
+  <!-- Recent clock responses -->
+  <div class="section">
+    <h2>📋 Recent Clock Responses</h2>
+    <?php if (empty($recentClock)): ?>
+      <p style="color:#9CA3AF">No clock data yet.</p>
+    <?php else: ?>
+    <table>
+      <tr><th>Date</th><th>Type</th><th>Time Shown</th><th>Answer</th><th>Correct</th><th>Sec</th></tr>
+      <?php foreach ($recentClock as $r): ?>
+      <tr>
+        <td><?= htmlspecialchars($r['date']) ?> <?= htmlspecialchars($r['time']) ?></td>
+        <td><span class="badge" style="background:#F3EEFF;color:#7B5EA7"><?= htmlspecialchars($r['question_type']) ?></span></td>
+        <td style="font-weight:900"><?= htmlspecialchars($r['time_shown']) ?></td>
+        <td><?= htmlspecialchars($r['answer_given']) ?></td>
+        <td><span class="badge <?= $r['correct'] ? 'badge-yes' : 'badge-no' ?>"><?= $r['correct'] ? 'YES' : 'NO' ?></span></td>
+        <td><?= $r['response_time_sec'] ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+  </div>
+
+  <!-- Shapes accuracy by mode -->
+  <div class="section">
+    <h2>🔷 Shapes — Accuracy by Mode</h2>
+    <?php if (empty($shapesByMode)): ?>
+      <p style="color:#9CA3AF">No shapes data yet.</p>
+    <?php else: ?>
+      <?php
+      $modeColors = ['identify'=>'#FFF1F2|#9F1239','equal_parts'=>'#EEF2FF|#4338CA','attributes'=>'#ECFDF5|#065F46'];
+      $modeLabels = ['identify'=>'Identify Shape','equal_parts'=>'Equal Parts','attributes'=>'Attributes'];
+      foreach ($shapesByMode as $row):
+        $pct = $row['total'] > 0 ? round(($row['correct'] / $row['total']) * 100) : 0;
+        $color = $pct >= 80 ? '#06D6A0' : ($pct >= 60 ? '#FFD166' : '#EF476F');
+        $mc = isset($modeColors[$row['mode']]) ? explode('|', $modeColors[$row['mode']]) : ['#F1F5F9','#6B7280'];
+        $label = $modeLabels[$row['mode']] ?? $row['mode'];
+      ?>
+      <div class="progress-row">
+        <div class="progress-label"><span class="badge" style="background:<?= $mc[0] ?>;color:<?= $mc[1] ?>"><?= $label ?></span></div>
+        <div class="progress-bg"><div class="progress-fill" style="width:<?= $pct ?>%;background:<?= $color ?>;"></div></div>
+        <div class="progress-pct" style="color:<?= $color ?>"><?= $pct ?>%</div>
+        <div style="font-size:13px;color:#9CA3AF;width:80px;"><?= $row['correct'] ?>/<?= $row['total'] ?></div>
+      </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  </div>
+
+  <!-- Shapes weekly trend -->
+  <?php if (!empty($weeklyShapesQ)): ?>
+  <div class="section">
+    <h2>📈 Weekly Shapes Trend (last 4 weeks)</h2>
+    <table>
+      <tr><th>Week</th><th>Questions</th><th>Correct</th><th>Accuracy</th></tr>
+      <?php foreach (array_reverse($weeklyShapesQ) as $w):
+        $pct = $w['total'] > 0 ? round(($w['correct'] / $w['total']) * 100) : 0;
+        $color = $pct >= 80 ? '#06D6A0' : ($pct >= 60 ? '#FFD166' : '#EF476F');
+      ?>
+      <tr>
+        <td>Week <?= $w['wk'] ?>, <?= $w['yr'] ?></td>
+        <td><?= $w['total'] ?></td>
+        <td><?= $w['correct'] ?></td>
+        <td><strong style="color:<?= $color ?>"><?= $pct ?>%</strong></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+  </div>
+  <?php endif; ?>
+
+  <!-- Recent shapes responses -->
+  <div class="section">
+    <h2>📋 Recent Shapes Responses</h2>
+    <?php if (empty($recentShapes)): ?>
+      <p style="color:#9CA3AF">No shapes data yet.</p>
+    <?php else: ?>
+    <table>
+      <tr><th>Date</th><th>Mode</th><th>Question</th><th>Answer</th><th>Correct</th><th>Sec</th></tr>
+      <?php foreach ($recentShapes as $r): ?>
+      <tr>
+        <td><?= htmlspecialchars($r['date']) ?> <?= htmlspecialchars($r['time']) ?></td>
+        <td><span class="badge badge-<?= $r['mode'] ?>"><?= htmlspecialchars($r['mode']) ?></span></td>
+        <td><?= htmlspecialchars($r['question']) ?></td>
+        <td><?= htmlspecialchars($r['answer_given']) ?></td>
+        <td><span class="badge <?= $r['correct'] ? 'badge-yes' : 'badge-no' ?>"><?= $r['correct'] ? 'YES' : 'NO' ?></span></td>
+        <td><?= $r['response_time_sec'] ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+  </div>
+
+  <!-- Vocabulary accuracy by word -->
+  <div class="section">
+    <h2>📝 Vocabulary — Accuracy by Word</h2>
+    <?php if (empty($vocabByWord)): ?>
+      <p style="color:#9CA3AF">No vocabulary data yet.</p>
+    <?php else: ?>
+      <?php foreach ($vocabByWord as $row):
+        $pct = $row['total'] > 0 ? round(($row['correct'] / $row['total']) * 100) : 0;
+        $color = $pct >= 80 ? '#06D6A0' : ($pct >= 60 ? '#FFD166' : '#EF476F');
+      ?>
+      <div class="progress-row">
+        <div class="progress-label" style="width:100px;font-size:13px;font-weight:900"><?= htmlspecialchars($row['word']) ?></div>
+        <div class="progress-bg"><div class="progress-fill" style="width:<?= $pct ?>%;background:<?= $color ?>;"></div></div>
+        <div class="progress-pct" style="color:<?= $color ?>"><?= $pct ?>%</div>
+        <div style="font-size:13px;color:#9CA3AF;width:60px;"><?= $row['correct'] ?>/<?= $row['total'] ?></div>
+      </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  </div>
+
+  <!-- Recent vocabulary responses -->
+  <div class="section">
+    <h2>📋 Recent Vocabulary Responses</h2>
+    <?php if (empty($recentVocab)): ?>
+      <p style="color:#9CA3AF">No vocabulary data yet.</p>
+    <?php else: ?>
+    <table>
+      <tr><th>Date</th><th>Word</th><th>Answer Given</th><th>Correct</th><th>Sec</th></tr>
+      <?php foreach ($recentVocab as $r): ?>
+      <tr>
+        <td><?= htmlspecialchars($r['date']) ?> <?= htmlspecialchars($r['time']) ?></td>
+        <td style="font-weight:900;color:#FF9F1C"><?= htmlspecialchars($r['word']) ?></td>
         <td><?= htmlspecialchars($r['answer_given']) ?></td>
         <td><span class="badge <?= $r['correct'] ? 'badge-yes' : 'badge-no' ?>"><?= $r['correct'] ? 'YES' : 'NO' ?></span></td>
         <td><?= $r['response_time_sec'] ?></td>

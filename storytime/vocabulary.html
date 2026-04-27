@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vocabulary">
+<title>Vocabulary</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #FFF8F0; font-family: 'Nunito', sans-serif; overflow-x: hidden; }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  #app { max-width: 780px; margin: 0 auto; padding: 16px 20px 32px; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .logo { font-size: 24px; font-weight: 900; color: #FF9F1C; }
+  .test-toggle { font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; padding: 6px 14px; border-radius: 20px; border: 2px solid #DDE3F0; background: white; color: #9CA3AF; cursor: pointer; }
+  .test-toggle.active { background: #FFF1F2; border-color: #EF476F; color: #9F1239; }
+  .test-banner { background: #EF476F; border-radius: 0; padding: 4px 16px; font-size: 13px; font-weight: 800; color: white; text-align: center; margin: -16px -20px 10px; display: none; }
+  .token-pill { display: flex; align-items: center; gap: 8px; background: #FFF3CD; padding: 8px 18px; border-radius: 40px; border: 2px solid #FFD166; }
+  .token-pill strong { font-size: 17px; color: #7A5C00; }
+  .token-board { background: white; border-radius: 24px; border: 3px solid #E8EEF8; padding: 6px 16px; margin-bottom: 6px; }
+  .token-board-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .token-board-label { font-size: 14px; font-weight: 800; color: #6B7280; }
+  .token-board-msg { font-size: 14px; font-weight: 800; color: #FF9F1C; }
+  .token-circles { display: flex; gap: 8px; justify-content: center; }
+  .token-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.35s; }
+  .token-circle.empty  { background: #F1EFE8; border: 4px solid #D3D1C7; }
+  .token-circle.filled { background: #FFD166; border: 4px solid #F5A623; box-shadow: 0 4px 12px rgba(245,166,35,0.45); transform: scale(1.08); }
+  .card { background: white; border-radius: 24px; border: 3px solid #E8EEF8; padding: 12px; margin-bottom: 8px; }
+  .big-btn { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 800; padding: 20px 52px; border-radius: 60px; border: none; cursor: pointer; min-height: 70px; touch-action: manipulation; color: white; width: 100%; }
+  .big-btn.orange { background: #FF9F1C; box-shadow: 0 6px 0 #c97a00; }
+  .big-btn.green  { background: #06D6A0; box-shadow: 0 6px 0 #04a07a; }
+  .q-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+  .q-dot { width: 16px; height: 16px; border-radius: 50%; background: #DDE3F0; transition: background 0.3s; }
+  .q-dot.done    { background: #06D6A0; }
+  .q-dot.current { background: #FF9F1C; }
+  /* Word display */
+  .word-display { font-size: 60px; font-weight: 900; color: #FF9F1C; text-align: center; background: #FFF8F0; border: 4px solid #FFD166; border-radius: 20px; padding: 12px; margin-bottom: 12px; letter-spacing: 4px; }
+  .sentence-box { background: #F7F9FF; border-radius: 16px; padding: 12px 16px; font-size: 20px; font-weight: 700; color: #2D2D2D; text-align: center; line-height: 1.4; margin-bottom: 14px; border: 3px solid #DDE3F0; }
+  .blank { display: inline-block; min-width: 80px; border-bottom: 4px solid #FF9F1C; color: #FF9F1C; font-weight: 900; }
+  /* Meaning choice cards */
+  .meaning-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .meaning-btn { border-radius: 24px; padding: 16px 14px 14px; font-family: 'Nunito', sans-serif; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 100px; touch-action: manipulation; border: 4px solid #DDE3F0; background: white; color: #2D2D2D; }
+  .meaning-btn .m-emoji { font-size: 48px; }
+  .meaning-btn .m-label { font-size: 17px; font-weight: 800; }
+  .meaning-btn.correct { background: #ECFDF5; border-color: #06D6A0; }
+  .meaning-btn.wrong   { background: #FFF1F2; border-color: #EF476F; }
+  .meaning-btn:disabled { cursor: default; }
+  .feedback { border-radius: 20px; padding: 10px 16px; font-size: 17px; font-weight: 800; text-align: center; margin-top: 10px; display: none; }
+  .feedback.correct { background: #ECFDF5; color: #065F46; }
+  .feedback.wrong   { background: #FFF1F2; color: #9F1239; }
+  .next-btn { width: 100%; margin-top: 10px; background: #FF9F1C; color: white; font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 800; padding: 14px; border-radius: 60px; border: none; cursor: pointer; box-shadow: 0 5px 0 #c97a00; min-height: 54px; touch-action: manipulation; display: none; }
+  .progress-bar-bg { width: 100%; max-width: 340px; margin: 0 auto 24px; height: 18px; background: #DDE3F0; border-radius: 9px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: #FF9F1C; border-radius: 9px; transition: width 1s ease-out; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .bounce { animation: bounce 2s infinite; display: inline-block; }
+  .burst { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 120px; z-index: 9999; animation: burst 0.8s ease-out forwards; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  @keyframes burst  { 0%{opacity:1;transform:scale(0.5)} 60%{opacity:1;transform:scale(1.3)} 100%{opacity:0;transform:scale(1.8)} }
+  .pick-btn { font-family:'Nunito',sans-serif; font-size:22px; font-weight:900; border-radius:24px; padding:16px 20px; border:none; color:white; cursor:pointer; touch-action:manipulation; width:100%; margin:0; }
+  .pick-story { background:#5B8DEF; box-shadow:0 5px 0 #3a6abf; }
+  .pick-math  { background:#FF9F1C; box-shadow:0 5px 0 #c97a00; }
+  .pick-clock { background:#7B5EA7; box-shadow:0 5px 0 #5a4180; }
+  .pick-shapes{ background:#EF476F; box-shadow:0 5px 0 #b8304f; }
+  .pick-vocab { background:#06D6A0; box-shadow:0 5px 0 #04a07a; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a href="https://jaloza.com/michael/" style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#9CA3AF;text-decoration:none;">← Home</a>
+      <div class="logo">📝 Vocabulary</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="test-toggle" id="test-toggle" onclick="toggleTestMode()">🧪 Test Mode</button>
+      <div class="token-pill"><span style="font-size:20px">⭐</span><strong id="token-count">0/5</strong></div>
+    </div>
+  </div>
+  <div class="test-banner" id="test-banner">🧪 TEST MODE — answers will NOT count toward real data</div>
+
+  <!-- WELCOME -->
+  <div id="screen-welcome" class="screen active" style="text-align:center;padding-top:12px;">
+    <div class="bounce" style="font-size:96px;margin-bottom:16px;">📝</div>
+    <div style="font-size:36px;font-weight:900;color:#FF9F1C;margin-bottom:8px;">Hi Michael!</div>
+    <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:6px;">Some words have two meanings!</div>
+    <div style="font-size:17px;color:#9CA3AF;font-weight:600;margin-bottom:28px;">Answer 1 question = 1 ⭐ · Fill 5 stars = 🎬 video!</div>
+    <div id="welcome-token-board"></div>
+    <button class="big-btn orange" onclick="startRound()">Let's Go! 🚀</button>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="screen-question" class="screen">
+    <div id="q-token-board"></div>
+    <div class="q-dots" id="q-dots"></div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:800;color:#FF9F1C;text-align:center;margin-bottom:10px;">📝 TWO MEANINGS</div>
+      <div id="word-display" class="word-display"></div>
+      <div id="sentence-box" class="sentence-box"></div>
+      <div class="meaning-grid" id="meaning-grid"></div>
+      <div id="feedback" class="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()"></button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen" style="text-align:center;padding-top:12px;">
+    <div id="result-emoji" style="font-size:100px;margin-bottom:14px;display:inline-block;"></div>
+    <div id="result-title" style="font-size:32px;font-weight:900;margin-bottom:8px;"></div>
+    <div id="result-score" style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:24px;"></div>
+    <div class="progress-bar-bg"><div id="result-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+    <div id="result-token-board"></div>
+    <button class="big-btn green" onclick="startRound()">Play Again! 📝</button>
+  </div>
+
+  <!-- REWARD -->
+  <div id="screen-reward" class="screen" style="text-align:center;padding-top:10px;">
+    <div style="font-size:100px;margin-bottom:10px;">🎬</div>
+    <div style="font-size:36px;font-weight:900;color:#FF9F1C;margin-bottom:8px;">You earned a video!</div>
+    <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:28px;">Awesome work, Michael! 🎉</div>
+    <div id="reward-stars" style="display:flex;gap:14px;justify-content:center;margin-bottom:28px;"></div>
+    <div style="background:#FFF8F0;border-radius:22px;padding:24px 28px;margin-bottom:28px;">
+      <div style="font-size:16px;color:#6B7280;font-weight:600;margin-bottom:6px;">Your video reward:</div>
+      <div id="yt-label" style="font-size:20px;font-weight:800;color:#FF9F1C;margin-bottom:16px;"></div>
+      <button onclick="openYouTube()" style="background:#FF0000;color:white;font-family:'Nunito',sans-serif;font-size:20px;font-weight:800;padding:16px 40px;border-radius:40px;border:none;cursor:pointer;touch-action:manipulation;">▶ Watch on YouTube</button>
+    </div>
+    <div id="yt-hint" style="font-size:14px;color:#9CA3AF;margin-bottom:24px;"></div>
+    <button class="big-btn orange" onclick="resetAndStart()">Keep Playing! 📝</button>
+  </div>
+
+  <!-- PICK NEXT -->
+  <div id="screen-pick-next" class="screen" style="text-align:center;padding-top:12px;">
+    <div style="font-size:28px;font-weight:900;color:#2D2D2D;margin-bottom:12px;">Round Complete! 🎉</div>
+    <div id="pick-meta-board" style="margin-bottom:10px;"></div>
+    <div id="pick-meta-count" style="font-size:17px;color:#FF9F1C;font-weight:800;margin-bottom:20px;"></div>
+    <div style="font-size:22px;font-weight:800;color:#2D2D2D;margin-bottom:16px;">What do you want to play next?</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:420px;margin:0 auto;">
+      <button onclick="pickNext('index.html')" class="pick-btn pick-story">📚 Story Time</button>
+      <button onclick="pickNext('math.html')" class="pick-btn pick-math">📐 Math Time</button>
+      <button onclick="pickNext('clock.html')" class="pick-btn pick-clock">🕐 Clock Time</button>
+      <button onclick="pickNext('shapes.html')" class="pick-btn pick-shapes">🔷 Shapes</button>
+      <button onclick="pickNext('vocabulary.html')" class="pick-btn pick-vocab">📝 Vocabulary</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const VOCAB_WORDS = [
+  { word:"BAT",
+    sentence:"The boy hit the ball with his ___.",
+    meanings:[{emoji:"🏏",label:"Baseball bat",correct:true},{emoji:"🦇",label:"Flying bat",correct:false}] },
+  { word:"BARK",
+    sentence:"The dog made a loud ___.",
+    meanings:[{emoji:"🐕",label:"Dog's bark",correct:true},{emoji:"🌳",label:"Tree bark",correct:false}] },
+  { word:"RING",
+    sentence:"I heard the phone ___ and ran to answer it.",
+    meanings:[{emoji:"📱",label:"Phone ring",correct:true},{emoji:"💍",label:"Jewelry ring",correct:false}] },
+  { word:"BANK",
+    sentence:"Mom went to the ___ to save her money.",
+    meanings:[{emoji:"🏦",label:"Money bank",correct:true},{emoji:"🌊",label:"River bank",correct:false}] },
+  { word:"SPRING",
+    sentence:"The flowers bloomed in ___.",
+    meanings:[{emoji:"🌸",label:"The season spring",correct:true},{emoji:"🔩",label:"Metal spring / coil",correct:false}] },
+  { word:"LIGHT",
+    sentence:"The feather was very ___ and floated away.",
+    meanings:[{emoji:"🪶",label:"Not heavy",correct:true},{emoji:"💡",label:"A lamp",correct:false}] },
+  { word:"WAVE",
+    sentence:"The big ___ crashed onto the beach.",
+    meanings:[{emoji:"🌊",label:"Ocean wave",correct:true},{emoji:"👋",label:"Wave hello",correct:false}] },
+  { word:"FLY",
+    sentence:"The little ___ kept buzzing around the fruit.",
+    meanings:[{emoji:"🪰",label:"An insect",correct:true},{emoji:"✈️",label:"An airplane",correct:false}] },
+  { word:"PEN",
+    sentence:"I used a ___ to write my name.",
+    meanings:[{emoji:"🖊️",label:"Writing pen",correct:true},{emoji:"🐷",label:"Pig pen",correct:false}] },
+  { word:"ROCK",
+    sentence:"She found a smooth gray ___ by the river.",
+    meanings:[{emoji:"🪨",label:"A stone",correct:true},{emoji:"🎸",label:"Rock music",correct:false}] },
+  { word:"CRANE",
+    sentence:"A tall ___ lifted the steel beams at the building site.",
+    meanings:[{emoji:"🏗️",label:"Construction crane",correct:true},{emoji:"🐦",label:"Crane bird",correct:false}] },
+  { word:"POOL",
+    sentence:"We jumped into the cool ___ on a hot day.",
+    meanings:[{emoji:"🏊",label:"Swimming pool",correct:true},{emoji:"🎱",label:"Billiards pool",correct:false}] },
+  { word:"BEAR",
+    sentence:"The big brown ___ found honey in the tree.",
+    meanings:[{emoji:"🐻",label:"A bear animal",correct:true},{emoji:"💼",label:"To carry / bear weight",correct:false}] },
+  { word:"JAM",
+    sentence:"I put strawberry ___ on my toast.",
+    meanings:[{emoji:"🍓",label:"Strawberry jam",correct:true},{emoji:"🚗",label:"Traffic jam",correct:false}] },
+  { word:"PITCHER",
+    sentence:"The ___ on the mound threw a fast ball.",
+    meanings:[{emoji:"⚾",label:"Baseball pitcher",correct:true},{emoji:"🫗",label:"Drink pitcher",correct:false}] },
+  { word:"SCALES",
+    sentence:"The fish had shiny silver ___ on its body.",
+    meanings:[{emoji:"🐟",label:"Fish scales",correct:true},{emoji:"⚖️",label:"Weighing scales",correct:false}] },
+  { word:"FAIR",
+    sentence:"We rode the Ferris wheel at the ___ .",
+    meanings:[{emoji:"🎡",label:"A carnival fair",correct:true},{emoji:"⚖️",label:"Fair / equal",correct:false}] },
+  { word:"PATIENT",
+    sentence:"The ___ waited quietly in the hospital bed.",
+    meanings:[{emoji:"🏥",label:"Hospital patient",correct:true},{emoji:"😌",label:"Calm and patient",correct:false}] },
+  { word:"LEFT",
+    sentence:"Turn ___ at the corner to find the park.",
+    meanings:[{emoji:"⬅️",label:"Direction left",correct:true},{emoji:"🚶",label:"Already left / departed",correct:false}] },
+  { word:"CHECK",
+    sentence:"The tablecloth had a red and white ___ pattern.",
+    meanings:[{emoji:"🏁",label:"Checkered pattern",correct:true},{emoji:"✅",label:"To verify / check",correct:false}] }
+];
+
+const TOKENS_NEEDED = 5;
+const QUESTIONS_PER_ROUND = 5;
+const LOG_URL = "https://jaloza.com/michael/iep/log.php";
+const sessionId = "vo_" + Date.now();
+
+let tokens = 0, currentQ = 0, correctCount = 0, answered = false;
+let roundQuestions = [], questionStartTime = null;
+let isTestMode = false, currentSearch = "";
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildRound() {
+  roundQuestions = shuffle([...VOCAB_WORDS]).slice(0, QUESTIONS_PER_ROUND).map(w => ({
+    ...w,
+    shuffledMeanings: shuffle([...w.meanings])
+  }));
+}
+
+function startRound() {
+  buildRound();
+  currentQ = 0; correctCount = 0; answered = false;
+  renderTokenBoard('q-token-board');
+  renderQuestion();
+  showScreen('question');
+}
+
+function renderQuestion() {
+  const q = roundQuestions[currentQ];
+  renderTokenBoard('q-token-board');
+  document.getElementById('q-dots').innerHTML = roundQuestions.map((_,i) =>
+    `<div class="q-dot ${i<currentQ?'done':i===currentQ?'current':''}"></div>`).join('');
+
+  document.getElementById('word-display').textContent = q.word;
+  // Build sentence with blank
+  const sentenceHtml = q.sentence.replace('___', '<span class="blank">___</span>');
+  document.getElementById('sentence-box').innerHTML = sentenceHtml;
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  answered = false;
+  questionStartTime = Date.now();
+
+  document.getElementById('meaning-grid').innerHTML = q.shuffledMeanings.map((m, i) =>
+    `<button class="meaning-btn" id="ch-${i}" onclick="handleAnswer(${m.correct},${i},'${m.label.replace(/'/g,'\\\'').replace(/\//g,'\\/')}')">
+      <span class="m-emoji">${m.emoji}</span>
+      <span class="m-label">${m.label}</span>
+    </button>`
+  ).join('');
+}
+
+function handleAnswer(isCorrect, idx, chosenLabel) {
+  if (answered) return;
+  answered = true;
+  const q = roundQuestions[currentQ];
+  logAnswer(isCorrect, chosenLabel, q);
+
+  const btns = document.querySelectorAll('#meaning-grid button');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === idx) btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    else if (q.shuffledMeanings[i].correct) btn.classList.add('correct');
+  });
+
+  if (tokens < TOKENS_NEEDED) tokens++;
+  document.getElementById('token-count').textContent = tokens+'/'+TOKENS_NEEDED;
+  renderTokenBoard('q-token-board');
+  if (isCorrect) {
+    correctCount++;
+    showBurst();
+  }
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  const correctMeaning = q.shuffledMeanings.find(m => m.correct);
+  fb.textContent = isCorrect ? '⭐ Amazing! That\'s right!' : 'Good try! The answer is: '+correctMeaning.label;
+  fb.style.display = 'block';
+
+  if (tokens >= TOKENS_NEEDED && localStorage.getItem('tokenMode') !== 'session') {
+    setTimeout(showReward, 1100);
+  } else {
+    const nb = document.getElementById('next-btn');
+    nb.textContent = currentQ < QUESTIONS_PER_ROUND-1 ? 'Next ➡️' : 'See My Score! 🏆';
+    nb.style.display = 'block';
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < QUESTIONS_PER_ROUND) renderQuestion();
+  else if (localStorage.getItem('tokenMode') === 'session') sessionRoundComplete();
+  else showResult();
+}
+
+function showResult() {
+  const pct = Math.round((correctCount/QUESTIONS_PER_ROUND)*100);
+  document.getElementById('result-emoji').textContent = pct>=80?'🏆':pct>=60?'🌟':'💪';
+  document.getElementById('result-title').textContent = pct>=80?'Amazing job, Michael!':pct>=60?'Great work, Michael!':'Keep going, Michael!';
+  document.getElementById('result-score').textContent = 'You got '+correctCount+' out of '+QUESTIONS_PER_ROUND+' right!';
+  renderTokenBoard('result-token-board');
+  showScreen('result');
+  setTimeout(()=>{ document.getElementById('result-bar').style.width=pct+'%'; },100);
+}
+
+function showReward() {
+  const searches = ["Bluey full episodes kids","Mario Bros cartoon for kids","Minecraft funny animation kids",
+    "Pokemon cartoon episodes kids","SpongeBob funny moments","cartoon funny animals kids",
+    "Paw Patrol episodes","funny video game cartoons kids"];
+  currentSearch = searches[Math.floor(Math.random()*searches.length)];
+  document.getElementById('yt-label').textContent  = '"'+currentSearch+'"';
+  document.getElementById('yt-hint').textContent   = 'Search "'+currentSearch+'" on YouTube if button doesn\'t open';
+  document.getElementById('reward-stars').innerHTML = Array.from({length:TOKENS_NEEDED}).map(()=>
+    `<div style="width:64px;height:64px;border-radius:50%;background:#FFD166;border:4px solid #F5A623;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 12px rgba(245,166,35,0.5);">⭐</div>`).join('');
+  showScreen('reward');
+}
+
+function openYouTube() {
+  window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(currentSearch)+'&sp=EgIYAQ%3D%3D','_blank');
+}
+
+function sessionRoundComplete() {
+  tokens = 0;
+  document.getElementById('token-count').textContent = '0/'+TOKENS_NEEDED;
+  const meta = parseInt(localStorage.getItem('metaTokens') || '0') + 1;
+  if (meta >= 5) {
+    localStorage.setItem('metaTokens', '5');
+    window.location.href = '../';
+  } else {
+    localStorage.setItem('metaTokens', meta);
+    const left = 5 - meta;
+    document.getElementById('pick-meta-board').innerHTML =
+      '<div style="display:flex;gap:10px;justify-content:center;">' +
+      Array.from({length:5},(_,i)=>`<div style="width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;${i<meta?'background:#FFD166;border:4px solid #F5A623;':'background:#F1EFE8;border:4px solid #D3D1C7;'}">${i<meta?'⭐':''}</div>`).join('') +
+      '</div>';
+    document.getElementById('pick-meta-count').textContent =
+      meta + ' of 5 rounds done · ' + left + ' more for your video!';
+    showScreen('pick-next');
+  }
+}
+
+function pickNext(url) {
+  localStorage.setItem('launchDirect', '1');
+  window.location.href = url;
+}
+
+function resetAndStart() {
+  tokens = 0;
+  document.getElementById('token-count').textContent = '0/'+TOKENS_NEEDED;
+  startRound();
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showBurst() {
+  const el = document.createElement('div');
+  el.className='burst'; el.textContent='⭐';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),900);
+}
+
+function renderTokenBoard(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (localStorage.getItem('tokenMode') === 'session') { el.innerHTML = ''; return; }
+  const left = TOKENS_NEEDED - tokens;
+  el.innerHTML = `<div class="token-board">
+    <div class="token-board-header">
+      <span class="token-board-label">TOKEN BOARD</span>
+      <span class="token-board-msg">${tokens>=TOKENS_NEEDED?'🎬 Video time!':left+' more for your video!'}</span>
+    </div>
+    <div class="token-circles">
+      ${Array.from({length:TOKENS_NEEDED},(_,i)=>
+        `<div class="token-circle ${i<tokens?'filled':'empty'}">${i<tokens?'⭐':''}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function toggleTestMode() {
+  isTestMode = !isTestMode;
+  document.getElementById('test-toggle').classList.toggle('active', isTestMode);
+  document.getElementById('test-banner').style.display = isTestMode ? 'block' : 'none';
+}
+
+function logAnswer(isCorrect, chosenLabel, q) {
+  try {
+    const now = new Date();
+    const responseTimeSec = questionStartTime ? Math.round((Date.now()-questionStartTime)/1000) : null;
+    fetch(LOG_URL, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        appSource:"vocabulary",
+        date: now.toLocaleDateString("en-US"),
+        time: now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}),
+        word: q.word,
+        sentenceShown: q.sentence,
+        answerGiven: chosenLabel,
+        correct: isCorrect,
+        responseTimeSec,
+        tokensEarned: tokens,
+        sessionId,
+        isTest: isTestMode
+      })
+    }).catch(()=>{});
+  } catch(e){}
+}
+
+// ---- Init ----
+renderTokenBoard('welcome-token-board');
+if (localStorage.getItem('launchDirect') === '1') {
+  localStorage.removeItem('launchDirect');
+  startRound();
+}
+</script>
+</body>
+</html>
