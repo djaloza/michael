@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="First / Then">
+<title>First / Then</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: #FFF5F5; font-family: 'Nunito', sans-serif; overflow-x: hidden; }
+body { padding-bottom: env(safe-area-inset-bottom); }
+#app { max-width: 780px; margin: 0 auto; padding: 16px 20px 40px; }
+
+.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.logo { font-size: 22px; font-weight: 900; color: #FF6B6B; }
+.setup-btn { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; padding: 9px 20px; border-radius: 20px; border: 2px solid #FECDD3; background: white; color: #FF6B6B; cursor: pointer; touch-action: manipulation; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── SETUP SCREEN ── */
+.setup-title { font-size: 28px; font-weight: 900; color: #1F2937; text-align: center; margin-bottom: 6px; }
+.setup-sub   { font-size: 16px; color: #6B7280; font-weight: 600; text-align: center; margin-bottom: 28px; }
+.setup-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+
+.setup-card { background: white; border-radius: 24px; padding: 22px 16px; text-align: center; cursor: pointer; border: 3px solid #E5E7EB; touch-action: manipulation; transition: transform 0.12s; }
+.setup-card:active { transform: scale(0.97); }
+.setup-card.first-card { border-color: #6EE7B7; }
+.setup-card.then-card  { border-color: #93C5FD; }
+.setup-card-label { font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.first-card .setup-card-label { color: #059669; }
+.then-card  .setup-card-label { color: #2563EB; }
+.setup-emoji { font-size: 60px; display: block; margin-bottom: 8px; }
+.setup-name  { font-size: 17px; font-weight: 800; color: #1F2937; }
+.setup-hint  { font-size: 12px; color: #9CA3AF; font-weight: 600; margin-top: 4px; }
+
+.start-btn { display: block; width: 100%; font-family: 'Nunito', sans-serif; font-size: 26px; font-weight: 900; padding: 22px; border-radius: 60px; border: none; background: #FF6B6B; box-shadow: 0 7px 0 #c94f4f; color: white; cursor: pointer; touch-action: manipulation; transition: opacity 0.2s; }
+
+/* ── BOARD SCREEN ── */
+.board-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+.board-card { border-radius: 28px; padding: 24px 14px 20px; text-align: center; border: 4px solid; position: relative; overflow: hidden; transition: all 0.3s; min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.board-card.first-active { background: #ECFDF5; border-color: #06D6A0; animation: pulse-green 2s ease-in-out infinite; }
+.board-card.then-active  { background: #EFF6FF; border-color: #3B82F6; animation: pulse-blue 2s ease-in-out infinite; }
+.board-card.done         { background: #F3F4F6; border-color: #D1D5DB; opacity: 0.6; }
+.board-card.waiting      { background: #F9FAFB; border-color: #E5E7EB; opacity: 0.45; }
+
+@keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(6,214,160,0.35)} 50%{box-shadow:0 0 0 10px rgba(6,214,160,0.05)} }
+@keyframes pulse-blue  { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.35)} 50%{box-shadow:0 0 0 10px rgba(59,130,246,0.05)} }
+
+.board-label { font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.first-active .board-label { color: #059669; }
+.then-active  .board-label { color: #2563EB; }
+.done         .board-label { color: #9CA3AF; }
+.waiting      .board-label { color: #9CA3AF; }
+
+.board-emoji { font-size: 72px; display: block; margin-bottom: 10px; }
+.board-name  { font-size: 19px; font-weight: 900; color: #1F2937; }
+
+.done-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.65); display: flex; align-items: center; justify-content: center; font-size: 70px; }
+
+.done-btn { display: block; width: 100%; font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 900; padding: 22px 16px; border-radius: 60px; border: none; cursor: pointer; touch-action: manipulation; color: white; }
+.done-btn.green { background: #06D6A0; box-shadow: 0 7px 0 #04a07a; }
+.done-btn.blue  { background: #3B82F6; box-shadow: 0 7px 0 #1D4ED8; }
+.done-btn:active { transform: translateY(4px); box-shadow: none !important; }
+
+/* ── CELEBRATE SCREEN ── */
+.celebrate-box { text-align: center; padding-top: 32px; }
+.celebrate-emoji { font-size: 96px; margin-bottom: 16px; display: block; animation: bounce 1.5s infinite; }
+.celebrate-title { font-size: 36px; font-weight: 900; color: #FF6B6B; margin-bottom: 8px; }
+.celebrate-sub   { font-size: 20px; color: #6B7280; font-weight: 600; margin-bottom: 28px; }
+.stars-row { display: flex; gap: 14px; justify-content: center; margin-bottom: 32px; }
+.star-circle { width: 68px; height: 68px; border-radius: 50%; background: #FFD166; border: 4px solid #F5A623; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+.again-btn { display: block; width: 100%; max-width: 380px; margin: 0 auto 16px; font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 900; padding: 20px; border-radius: 60px; border: none; background: #FF6B6B; box-shadow: 0 6px 0 #c94f4f; color: white; cursor: pointer; touch-action: manipulation; }
+.home-btn  { display: block; width: 100%; max-width: 380px; margin: 0 auto; font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 800; padding: 16px; border-radius: 60px; border: 3px solid #E5E7EB; background: white; color: #6B7280; cursor: pointer; touch-action: manipulation; }
+
+/* ── PICKER OVERLAY ── */
+#picker-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: flex-end; justify-content: center; }
+.picker-sheet { background: white; border-radius: 28px 28px 0 0; padding: 20px 20px 40px; width: 100%; max-width: 780px; max-height: 80vh; overflow-y: auto; }
+.picker-title { font-size: 20px; font-weight: 900; color: #1F2937; text-align: center; margin-bottom: 4px; }
+.picker-sub   { font-size: 14px; color: #6B7280; text-align: center; margin-bottom: 16px; }
+.picker-grid  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.picker-item  { border-radius: 16px; padding: 12px 6px; text-align: center; cursor: pointer; border: 2px solid #E5E7EB; background: white; touch-action: manipulation; }
+.picker-item:active { background: #FFF5F5; border-color: #FF6B6B; transform: scale(0.95); }
+.picker-item-emoji { font-size: 38px; display: block; margin-bottom: 4px; }
+.picker-item-name  { font-size: 11px; font-weight: 800; color: #374151; }
+.picker-cancel { display: block; width: 100%; margin-top: 16px; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800; padding: 14px; border-radius: 60px; border: 2px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; touch-action: manipulation; }
+
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a href="../" style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#9CA3AF;text-decoration:none;">← Home</a>
+      <div class="logo">📋 First / Then</div>
+    </div>
+    <button class="setup-btn" onclick="showSetup()">⚙ Setup</button>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div id="screen-setup" class="screen active">
+    <div class="setup-title">Set Up Today's Board</div>
+    <div class="setup-sub">Choose what Michael does FIRST, then gets as a reward</div>
+    <div class="setup-row">
+      <div class="setup-card first-card" onclick="openPicker('first')">
+        <div class="setup-card-label">First</div>
+        <span class="setup-emoji" id="setup-first-emoji">❓</span>
+        <div class="setup-name" id="setup-first-name">Tap to choose</div>
+        <div class="setup-hint">What does Michael do?</div>
+      </div>
+      <div class="setup-card then-card" onclick="openPicker('then')">
+        <div class="setup-card-label">Then</div>
+        <span class="setup-emoji" id="setup-then-emoji">❓</span>
+        <div class="setup-name" id="setup-then-name">Tap to choose</div>
+        <div class="setup-hint">What does he earn?</div>
+      </div>
+    </div>
+    <button class="start-btn" id="start-btn" onclick="startBoard()" style="opacity:0.45;pointer-events:none;">Let's Start! →</button>
+  </div>
+
+  <!-- BOARD SCREEN -->
+  <div id="screen-board" class="screen">
+    <div class="board-cards">
+      <div class="board-card first-active" id="card-first">
+        <div class="board-label" id="label-first">First</div>
+        <span class="board-emoji" id="board-first-emoji"></span>
+        <div class="board-name"  id="board-first-name"></div>
+      </div>
+      <div class="board-card waiting" id="card-then">
+        <div class="board-label" id="label-then">Then</div>
+        <span class="board-emoji" id="board-then-emoji"></span>
+        <div class="board-name"  id="board-then-name"></div>
+      </div>
+    </div>
+    <button class="done-btn green" id="done-btn" onclick="markDone()"></button>
+  </div>
+
+  <!-- CELEBRATE SCREEN -->
+  <div id="screen-celebrate" class="screen">
+    <div class="celebrate-box">
+      <span class="celebrate-emoji">🎉</span>
+      <div class="celebrate-title">Amazing, Michael!</div>
+      <div class="celebrate-sub">You did both things! Great job!</div>
+      <div class="stars-row">
+        <div class="star-circle">⭐</div>
+        <div class="star-circle">⭐</div>
+        <div class="star-circle">⭐</div>
+      </div>
+      <button class="again-btn" onclick="showSetup()">Do Another One! 🚀</button>
+      <button class="home-btn"  onclick="window.location.href='../'">← Go Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- PICKER OVERLAY -->
+<div id="picker-overlay" style="display:none;" onclick="handleOverlayClick(event)">
+  <div class="picker-sheet" onclick="event.stopPropagation()">
+    <div class="picker-title" id="picker-title">Choose activity</div>
+    <div class="picker-sub">Tap to select</div>
+    <div class="picker-grid" id="picker-grid"></div>
+    <button class="picker-cancel" onclick="closePicker()">Cancel</button>
+  </div>
+</div>
+
+<script>
+const LOG_URL = '../iep/log.php';
+
+const ACTIVITIES = [
+  {emoji:'📚', name:'Reading'},
+  {emoji:'📐', name:'Math'},
+  {emoji:'🗣️', name:'Language'},
+  {emoji:'✏️', name:'Writing'},
+  {emoji:'🎨', name:'Art'},
+  {emoji:'🧩', name:'Puzzle'},
+  {emoji:'🕐', name:'Clock Time'},
+  {emoji:'🔷', name:'Shapes'},
+  {emoji:'🍎', name:'Snack'},
+  {emoji:'📱', name:'iPad Time'},
+  {emoji:'🎬', name:'Video'},
+  {emoji:'🚶', name:'Walk'},
+  {emoji:'🎵', name:'Music'},
+  {emoji:'🏃', name:'Recess'},
+  {emoji:'🧼', name:'Wash Hands'},
+  {emoji:'🪑', name:'Circle Time'},
+  {emoji:'🎮', name:'Game'},
+  {emoji:'💤', name:'Rest'},
+  {emoji:'🥪', name:'Lunch'},
+  {emoji:'🚌', name:'Go Home'},
+];
+
+var firstActivity = null;
+var thenActivity  = null;
+var firstDone     = false;
+var pickerTarget  = null;
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showSetup() {
+  firstDone = false;
+  showScreen('setup');
+}
+
+function openPicker(target) {
+  pickerTarget = target;
+  document.getElementById('picker-title').textContent =
+    target === 'first' ? 'Choose FIRST activity' : 'Choose THEN reward';
+  var grid = document.getElementById('picker-grid');
+  grid.innerHTML = ACTIVITIES.map(function(a) {
+    return '<div class="picker-item" onclick="selectActivity(\'' +
+      a.emoji.replace(/'/g, "\\'") + '\',\'' + a.name.replace(/'/g, "\\'") + '\')">' +
+      '<span class="picker-item-emoji">' + a.emoji + '</span>' +
+      '<div class="picker-item-name">' + a.name + '</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('picker-overlay').style.display = 'flex';
+}
+
+function closePicker() {
+  document.getElementById('picker-overlay').style.display = 'none';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('picker-overlay')) closePicker();
+}
+
+function selectActivity(emoji, name) {
+  if (pickerTarget === 'first') {
+    firstActivity = {emoji: emoji, name: name};
+    document.getElementById('setup-first-emoji').textContent = emoji;
+    document.getElementById('setup-first-name').textContent  = name;
+  } else {
+    thenActivity = {emoji: emoji, name: name};
+    document.getElementById('setup-then-emoji').textContent = emoji;
+    document.getElementById('setup-then-name').textContent  = name;
+  }
+  closePicker();
+  if (firstActivity && thenActivity) {
+    var btn = document.getElementById('start-btn');
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
+}
+
+function startBoard() {
+  if (!firstActivity || !thenActivity) return;
+  firstDone = false;
+
+  document.getElementById('board-first-emoji').textContent = firstActivity.emoji;
+  document.getElementById('board-first-name').textContent  = firstActivity.name;
+  document.getElementById('board-then-emoji').textContent  = thenActivity.emoji;
+  document.getElementById('board-then-name').textContent   = thenActivity.name;
+
+  var cardFirst = document.getElementById('card-first');
+  cardFirst.className = 'board-card first-active';
+  var oldOverlay = cardFirst.querySelector('.done-overlay');
+  if (oldOverlay) oldOverlay.remove();
+  document.getElementById('label-first').textContent = 'First';
+
+  document.getElementById('card-then').className = 'board-card waiting';
+  document.getElementById('label-then').textContent = 'Then';
+
+  var btn = document.getElementById('done-btn');
+  btn.textContent = 'I finished ' + firstActivity.name + '! ✓';
+  btn.className = 'done-btn green';
+
+  showScreen('board');
+}
+
+function markDone() {
+  if (!firstDone) {
+    firstDone = true;
+
+    var cardFirst = document.getElementById('card-first');
+    cardFirst.className = 'board-card done';
+    var overlay = document.createElement('div');
+    overlay.className = 'done-overlay';
+    overlay.textContent = '✅';
+    cardFirst.appendChild(overlay);
+
+    var cardThen = document.getElementById('card-then');
+    cardThen.className = 'board-card then-active';
+    document.getElementById('label-then').textContent = 'Now!';
+
+    var btn = document.getElementById('done-btn');
+    btn.textContent = 'I finished ' + thenActivity.name + '! ✓';
+    btn.className = 'done-btn blue';
+  } else {
+    logSession();
+    showScreen('celebrate');
+  }
+}
+
+function logSession() {
+  var now = new Date();
+  fetch(LOG_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      appSource:     'firstthen',
+      date:          now.toLocaleDateString('en-US'),
+      time:          now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}),
+      firstActivity: firstActivity ? firstActivity.name : '',
+      thenActivity:  thenActivity  ? thenActivity.name  : '',
+      completed:     true
+    })
+  }).catch(function() {});
+}
+</script>
+</body>
+</html>

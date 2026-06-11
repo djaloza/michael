@@ -20,17 +20,26 @@
   .hero-title { font-size: 48px; font-weight: 900; color: #5B8DEF; margin-bottom: 8px; }
   .hero-sub { font-size: 22px; color: #6B7280; font-weight: 600; margin-bottom: 24px; }
   .card-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 500px; }
+  .section-label { font-size: 14px; font-weight: 800; color: #9CA3AF; letter-spacing: 1px; text-align: left; width: 100%; max-width: 500px; margin-top: 8px; margin-bottom: 8px; text-transform: uppercase; }
   .app-card { border-radius: 28px; padding: 32px 24px; text-align: center; cursor: pointer; border: none; font-family: 'Nunito', sans-serif; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 12px; touch-action: manipulation; transition: transform 0.15s, box-shadow 0.15s; }
   .app-card:active { transform: scale(0.97); }
   .app-card .card-emoji { font-size: 72px; }
   .app-card .card-title { font-size: 28px; font-weight: 900; color: white; }
   .app-card .card-desc { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.85); }
-  .card-story { background: #5B8DEF; box-shadow: 0 8px 0 #3a6abf; }
-  .card-math  { background: #FF9F1C; box-shadow: 0 8px 0 #c97a00; }
-  .card-clock { background: #7B5EA7; box-shadow: 0 8px 0 #5a4180; }
-  .card-shapes{ background: #EF476F; box-shadow: 0 8px 0 #b8304f; }
-  .card-vocab { background: #06D6A0; box-shadow: 0 8px 0 #04a07a; }
-  .card-data  { background: #6B7280; box-shadow: 0 8px 0 #4b5563; }
+  .card-story    { background: #5B8DEF; box-shadow: 0 8px 0 #3a6abf; }
+  .card-math     { background: #FF9F1C; box-shadow: 0 8px 0 #c97a00; }
+  .card-language { background: #06D6A0; box-shadow: 0 8px 0 #04a07a; }
+  .card-clock    { background: #7B5EA7; box-shadow: 0 8px 0 #5a4180; }
+  .card-shapes   { background: #EF476F; box-shadow: 0 8px 0 #b8304f; }
+  .card-vocab    { background: #4ECDC4; box-shadow: 0 8px 0 #38a09a; }
+  .card-firstthen{ background: #FF6B6B; box-shadow: 0 8px 0 #c94f4f; }
+  .card-data     { background: #6B7280; box-shadow: 0 8px 0 #4b5563; }
+  .card-checkin  { background: #FF9F1C; box-shadow: 0 8px 0 #c97a00; }
+
+  /* ROW LAYOUT for 2 side-by-side on wider screens */
+  @media (min-width: 480px) {
+    .card-grid-2col { grid-template-columns: 1fr 1fr; }
+  }
 
   /* MODE TOGGLE */
   .mode-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; width: 100%; max-width: 500px; }
@@ -60,6 +69,16 @@
 </head>
 <body>
 
+<!-- DAD SETTINGS PANEL -->
+<div id="dad-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:10000;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:white;border-radius:28px;padding:28px 24px;max-width:420px;width:100%;max-height:80vh;overflow-y:auto;">
+    <div style="font-size:22px;font-weight:900;color:#1a1a2e;margin-bottom:4px;">⚙️ App Settings</div>
+    <div style="font-size:13px;color:#6B7280;margin-bottom:20px;">Toggle which apps Michael sees</div>
+    <div id="dad-app-list"></div>
+    <button onclick="closeDadPanel()" style="width:100%;margin-top:20px;background:#5B8DEF;color:white;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;padding:14px;border-radius:60px;border:none;cursor:pointer;box-shadow:0 5px 0 #3a6abf;">Done ✓</button>
+  </div>
+</div>
+
 <!-- CONFETTI CANVAS (above everything) -->
 <canvas id="confetti-canvas"></canvas>
 
@@ -81,7 +100,7 @@
 
 <!-- WELCOME -->
 <div class="page" id="screen-welcome">
-  <div class="hero-emoji">⭐</div>
+  <div class="hero-emoji" id="hero-emoji" style="cursor:default;user-select:none;">⭐</div>
   <div class="hero-title">Hi Michael!</div>
   <div class="hero-sub">What do you want to do today?</div>
 
@@ -98,36 +117,52 @@
     <div class="meta-msg" id="meta-msg"></div>
   </div>
 
-  <div class="card-grid">
-    <a class="app-card card-story" href="storytime/">
+  <!-- ROW 1: Michael's Learning Apps -->
+  <div class="section-label">📚 Michael's Apps</div>
+  <div class="card-grid card-grid-2col">
+    <a id="card-story" class="app-card card-story" href="storytime/">
       <span class="card-emoji">📚</span>
       <span class="card-title">Story Time</span>
       <span class="card-desc">Read stories · Answer questions · Earn stars!</span>
     </a>
-    <a class="app-card card-math" href="storytime/math.html">
+    <a id="card-math" class="app-card card-math" href="storytime/math.html">
       <span class="card-emoji">📐</span>
       <span class="card-title">Math Time</span>
-      <span class="card-desc">Compare things · Longer · Wider · More!</span>
+      <span class="card-desc">Compare things · Add & Subtract!</span>
     </a>
-    <a class="app-card card-clock" href="storytime/clock.html">
+    <a id="card-language" class="app-card card-language" href="storytime/language.html">
+      <span class="card-emoji">🗣️</span>
+      <span class="card-title">Language Time</span>
+      <span class="card-desc">Pronouns, prepositions & talking!</span>
+    </a>
+    <a id="card-clock" class="app-card card-clock" href="storytime/clock.html">
       <span class="card-emoji">🕐</span>
       <span class="card-title">Clock Time</span>
       <span class="card-desc">What time is it?</span>
     </a>
-    <a class="app-card card-shapes" href="storytime/shapes.html">
+    <a id="card-shapes" class="app-card card-shapes" href="storytime/shapes.html">
       <span class="card-emoji">🔷</span>
       <span class="card-title">Shapes</span>
       <span class="card-desc">Sides, corners, equal parts!</span>
     </a>
-    <a class="app-card card-vocab" href="storytime/vocabulary.html">
+    <a id="card-vocab" class="app-card card-vocab" href="storytime/vocabulary.html">
       <span class="card-emoji">📝</span>
       <span class="card-title">Vocabulary</span>
       <span class="card-desc">Words with two meanings!</span>
     </a>
-    <a class="app-card card-data" href="iep/dashboard.php">
+  </div>
+
+  <!-- ROW 2: Tools -->
+  <div class="card-grid card-grid-2col" style="margin-top:16px;">
+    <a id="card-firstthen" class="app-card card-firstthen" href="storytime/firstthen.html" style="background:#FF6B6B;box-shadow:0 8px 0 #c94f4f;">
+      <span class="card-emoji">📋</span>
+      <span class="card-title">First / Then</span>
+      <span class="card-desc">First this, then that!</span>
+    </a>
+    <a id="card-data" class="app-card card-data" href="iep/dashboard.php">
       <span class="card-emoji">📊</span>
       <span class="card-title">Look at Data</span>
-      <span class="card-desc">See how Michael is doing!</span>
+      <span class="card-desc">For Dad 👨 — See how Michael is doing!</span>
     </a>
   </div>
 </div>
@@ -244,6 +279,64 @@ function closeReward() {
   renderMetaBoard();
 }
 
+// ── DAD MODE ─────────────────────────────────────────────────
+const APP_LIST = [
+  { id: 'card-story',     label: '📚 Story Time' },
+  { id: 'card-math',      label: '📐 Math Time' },
+  { id: 'card-language',  label: '🗣️ Language Time' },
+  { id: 'card-clock',     label: '🕐 Clock Time' },
+  { id: 'card-shapes',    label: '🔷 Shapes' },
+  { id: 'card-vocab',     label: '📝 Vocabulary' },
+  { id: 'card-firstthen', label: '📋 First / Then' },
+  { id: 'card-data',      label: '📊 Look at Data' },
+];
+
+function applyVisibility() {
+  var hidden = JSON.parse(localStorage.getItem('hiddenApps') || '[]');
+  APP_LIST.forEach(function(app) {
+    var el = document.getElementById(app.id);
+    if (el) el.style.display = hidden.indexOf(app.id) >= 0 ? 'none' : '';
+  });
+}
+
+function openDadPanel() {
+  var hidden = JSON.parse(localStorage.getItem('hiddenApps') || '[]');
+  var list = document.getElementById('dad-app-list');
+  list.innerHTML = APP_LIST.map(function(app) {
+    var checked = hidden.indexOf(app.id) < 0 ? 'checked' : '';
+    return '<label style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;">' +
+      '<input type="checkbox" data-app="' + app.id + '" ' + checked +
+      ' style="width:24px;height:24px;accent-color:#5B8DEF;cursor:pointer;flex-shrink:0;">' +
+      '<span style="font-size:18px;font-weight:700;color:#2D2D2D;">' + app.label + '</span>' +
+      '</label>';
+  }).join('');
+  document.getElementById('dad-panel').style.display = 'flex';
+}
+
+function closeDadPanel() {
+  var checkboxes = document.querySelectorAll('#dad-app-list input[type=checkbox]');
+  var hidden = [];
+  checkboxes.forEach(function(cb) {
+    if (!cb.checked) hidden.push(cb.getAttribute('data-app'));
+  });
+  localStorage.setItem('hiddenApps', JSON.stringify(hidden));
+  applyVisibility();
+  document.getElementById('dad-panel').style.display = 'none';
+}
+
+// Triple-tap the ⭐ to open dad panel
+var heroTapCount = 0;
+var heroTapTimer = null;
+document.getElementById('hero-emoji').addEventListener('click', function() {
+  heroTapCount++;
+  clearTimeout(heroTapTimer);
+  heroTapTimer = setTimeout(function() { heroTapCount = 0; }, 800);
+  if (heroTapCount >= 3) {
+    heroTapCount = 0;
+    openDadPanel();
+  }
+});
+
 // ── INIT ──────────────────────────────────────────────────────
 const meta = parseInt(localStorage.getItem('metaTokens') || '0');
 if (meta >= META_TOKENS_NEEDED) {
@@ -251,6 +344,7 @@ if (meta >= META_TOKENS_NEEDED) {
   setTimeout(showReward, 300);
 }
 setMode(tokenMode);
+applyVisibility();
 </script>
 </body>
 </html>

@@ -1,8 +1,9 @@
 <?php
-$host = "localhost";
+require_once '/home/djaloza/config.php';
+$host = DB_HOST;
 $db   = "michael_iep";
-$user = "hubuser";
-$pass = "@2R0land0f3ld";
+$user = DB_USER;
+$pass = DB_PASS;
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);

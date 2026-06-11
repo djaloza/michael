@@ -42,6 +42,21 @@
   .badge-LENGTH   { background: #EEF2FF; color: #4338CA; }
   .badge-WIDTH    { background: #F5F3FF; color: #5B21B6; }
   .badge-CAPACITY { background: #ECFDF5; color: #065F46; }
+  .badge-ADDITION { background: #FEF3C7; color: #92400E; }
+  .badge-SUBTRACTION { background: #FFF1F2; color: #9F1239; }
+  /* BASE-10 BLOCKS */
+  .b10-row { display: flex; align-items: flex-end; gap: 4px; justify-content: center; flex-wrap: wrap; }
+  .b10-num { text-align: center; }
+  .b10-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .b10-group-label { font-size: 10px; font-weight: 800; color: #9CA3AF; margin-top: 4px; }
+  .b10-blocks { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
+  /* ARITH choices */
+  .arith-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .arith-btn { border-radius: 18px; padding: 16px 10px; font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 900; cursor: pointer; text-align: center; touch-action: manipulation; border: 3px solid #DDE3F0; background: white; color: #2D2D2D; }
+  .arith-btn.correct { background: #ECFDF5; border-color: #06D6A0; color: #065F46; }
+  .arith-btn.wrong { background: #FFF1F2; border-color: #EF476F; color: #9F1239; }
+  .arith-btn:disabled { cursor: default; }
+  .cap-label { font-size: 13px; font-weight: 900; text-align: center; margin-top: 4px; }
   .q-text { font-size: 24px; font-weight: 900; color: #2D2D2D; text-align: center; margin-bottom: 12px; line-height: 1.3; }
   .compare-card { width: 100%; background: white; border-radius: 20px; border: 3px solid #E8EEF8; overflow: hidden; margin-bottom: 16px; }
   .card-halves { display: flex; width: 100%; }
@@ -71,6 +86,7 @@
   .pick-clock { background:#7B5EA7; box-shadow:0 5px 0 #5a4180; }
   .pick-shapes{ background:#EF476F; box-shadow:0 5px 0 #b8304f; }
   .pick-vocab { background:#06D6A0; box-shadow:0 5px 0 #04a07a; }
+  .pick-lang  { background:#06D6A0; box-shadow:0 5px 0 #04a07a; }
 </style>
 </head>
 <body>
@@ -165,6 +181,7 @@
     <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:420px;margin:0 auto;">
       <button onclick="pickNext('index.html')" class="pick-btn pick-story">📚 Story Time</button>
       <button onclick="pickNext('math.html')" class="pick-btn pick-math">📐 Math Time</button>
+      <button onclick="pickNext('language.html')" class="pick-btn pick-lang">🗣️ Language Time</button>
       <button onclick="pickNext('clock.html')" class="pick-btn pick-clock">🕐 Clock Time</button>
       <button onclick="pickNext('shapes.html')" class="pick-btn pick-shapes">🔷 Shapes</button>
       <button onclick="pickNext('vocabulary.html')" class="pick-btn pick-vocab">📝 Vocabulary</button>
@@ -408,6 +425,34 @@ aSvg:'<rect x="5" y="22" width="150" height="58" rx="8" fill="#29B6F6"/><rect x=
 bSvg:'<path d="M68,28 L64,72 L96,72 L92,28 Z" fill="#B3E5FC" stroke="#90CAF9" stroke-width="2"/>',correct:0}
 ];
 
+// ── ADDITION QUESTIONS (goalCode SAI3) ───────────────────────
+const ADDITION_QS = [
+  {a:23,b:14,ans:37,wrong:[38,36,47]},{a:45,b:32,ans:77,wrong:[76,78,87]},
+  {a:61,b:28,ans:89,wrong:[88,90,79]},{a:134,b:25,ans:159,wrong:[158,160,149]},
+  {a:246,b:133,ans:379,wrong:[378,380,369]},{a:352,b:241,ans:593,wrong:[592,594,583]},
+  {a:47,b:36,ans:83,wrong:[82,84,73]},{a:58,b:27,ans:85,wrong:[84,86,75]},
+  {a:164,b:148,ans:312,wrong:[311,313,302]},{a:275,b:138,ans:413,wrong:[412,414,403]},
+  {a:30,b:50,ans:80,wrong:[79,81,70]},{a:200,b:300,ans:500,wrong:[499,501,490]},
+  {a:145,b:200,ans:345,wrong:[344,346,335]},{a:67,b:23,ans:90,wrong:[89,91,80]},
+  {a:88,b:12,ans:100,wrong:[99,101,110]},{a:156,b:244,ans:400,wrong:[399,401,390]},
+  {a:325,b:175,ans:500,wrong:[499,501,490]},{a:99,b:1,ans:100,wrong:[99,101,110]},
+  {a:450,b:350,ans:800,wrong:[799,801,790]},{a:123,b:456,ans:579,wrong:[578,580,569]}
+];
+
+// ── SUBTRACTION QUESTIONS (goalCode SAI5) ─────────────────────
+const SUBTRACTION_QS = [
+  {a:47,b:23,ans:24,wrong:[25,23,34]},{a:89,b:45,ans:44,wrong:[43,45,54]},
+  {a:76,b:32,ans:44,wrong:[43,45,34]},{a:95,b:61,ans:34,wrong:[33,35,44]},
+  {a:158,b:134,ans:24,wrong:[23,25,34]},{a:379,b:246,ans:133,wrong:[132,134,143]},
+  {a:83,b:47,ans:36,wrong:[35,37,46]},{a:72,b:38,ans:34,wrong:[33,35,44]},
+  {a:312,b:164,ans:148,wrong:[147,149,138]},{a:413,b:275,ans:138,wrong:[137,139,128]},
+  {a:80,b:30,ans:50,wrong:[49,51,40]},{a:500,b:200,ans:300,wrong:[299,301,290]},
+  {a:345,b:200,ans:145,wrong:[144,146,135]},{a:90,b:67,ans:23,wrong:[22,24,33]},
+  {a:100,b:88,ans:12,wrong:[11,13,22]},{a:400,b:156,ans:244,wrong:[243,245,234]},
+  {a:500,b:325,ans:175,wrong:[174,176,165]},{a:100,b:99,ans:1,wrong:[2,0,11]},
+  {a:800,b:450,ans:350,wrong:[349,351,340]},{a:579,b:123,ans:456,wrong:[455,457,446]}
+];
+
 // ── SHUFFLE ───────────────────────────────────────────────────
 const shuffle = arr => {
   const a = [...arr];
@@ -418,11 +463,31 @@ const shuffle = arr => {
   return a;
 };
 
+// Pools for addition/subtraction (no repeat until exhausted)
+let addPool = [], subPool = [];
+
+function drawFrom(pool, source) {
+  if (pool.length === 0) pool.push(...shuffle([...source]));
+  return pool.splice(0,1)[0];
+}
+
 function buildRound() {
-  const len = shuffle(QUESTIONS.filter(q => q.cat === 'LENGTH')).slice(0, 2);
-  const wid = shuffle(QUESTIONS.filter(q => q.cat === 'WIDTH')).slice(0, 2);
+  const len = shuffle(QUESTIONS.filter(q => q.cat === 'LENGTH')).slice(0, 1);
+  const wid = shuffle(QUESTIONS.filter(q => q.cat === 'WIDTH')).slice(0, 1);
   const cap = shuffle(QUESTIONS.filter(q => q.cat === 'CAPACITY')).slice(0, 1);
-  return shuffle([...len, ...wid, ...cap]).map(pickVariant);
+  const add = [{...drawFrom(addPool, ADDITION_QS), cat:'ADDITION'}];
+  const sub = [{...drawFrom(subPool, SUBTRACTION_QS), cat:'SUBTRACTION'}];
+  // 6th: random from any category
+  const allCats = ['LENGTH','WIDTH','CAPACITY','ADDITION','SUBTRACTION'];
+  const randCat = allCats[Math.floor(Math.random()*allCats.length)];
+  let rand;
+  if (randCat==='ADDITION') rand = [{...drawFrom(addPool,ADDITION_QS), cat:'ADDITION'}];
+  else if (randCat==='SUBTRACTION') rand = [{...drawFrom(subPool,SUBTRACTION_QS), cat:'SUBTRACTION'}];
+  else {
+    const pool2 = shuffle(QUESTIONS.filter(q=>q.cat===randCat));
+    rand = [pool2[0]];
+  }
+  return shuffle([...len.map(pickVariant), ...wid.map(pickVariant), ...cap.map(pickVariant), ...add, ...sub, ...rand.map(q=>q.cat==='LENGTH'||q.cat==='WIDTH'||q.cat==='CAPACITY'?pickVariant(q):q)]);
 }
 
 // ── SCREENS ───────────────────────────────────────────────────
@@ -489,8 +554,15 @@ function renderQuestion() {
   ).join('');
 
   const badge = document.getElementById('cat-badge');
-  badge.textContent = q.cat === 'LENGTH' ? '📏 LENGTH' : q.cat === 'WIDTH' ? '↔️ WIDTH' : '🥤 CAPACITY';
+  const catLabels = {LENGTH:'📏 LENGTH', WIDTH:'↔️ WIDTH', CAPACITY:'🥤 CAPACITY', ADDITION:'➕ ADDITION', SUBTRACTION:'➖ SUBTRACTION'};
+  badge.textContent = catLabels[q.cat] || q.cat;
   badge.className = 'cat-badge badge-' + q.cat;
+
+  // For ADDITION / SUBTRACTION: show special UI
+  if (q.cat === 'ADDITION' || q.cat === 'SUBTRACTION') {
+    renderArithQuestion(q);
+    return;
+  }
 
   document.getElementById('q-text').textContent = q.displayQ;
 
@@ -509,6 +581,32 @@ function renderQuestion() {
   document.getElementById('svg-right').innerHTML  = correctLeft ? wrongSvg : correctSvg;
   document.getElementById('label-right').textContent = correctLeft ? wrongLbl : correctLbl;
 
+  // Capacity vocabulary labels
+  ['half-left','half-right'].forEach(id => {
+    const el = document.getElementById(id);
+    const oldCapLbl = el.querySelector('.cap-label');
+    if (oldCapLbl) oldCapLbl.remove();
+  });
+  if (q.cat === 'CAPACITY') {
+    // A is always the bigger container (correct:0 = A is bigger)
+    // askBig=true → A on correct side; askBig=false → B on correct side
+    // Left side SVG = correctLeft ? correctSvg : wrongSvg
+    // bigIsLeft = (correctLeft && askBig) || (!correctLeft && !askBig)
+    const bigIsLeft = (correctLeft && q.askBig) || (!correctLeft && !q.askBig);
+    const leftCap = document.getElementById('half-left');
+    const rightCap = document.getElementById('half-right');
+    const lblLeft = document.createElement('div');
+    lblLeft.className = 'cap-label';
+    lblLeft.style.color = bigIsLeft ? '#065F46' : '#6B7280';
+    lblLeft.textContent = bigIsLeft ? 'FULL 💧' : 'EMPTY';
+    leftCap.appendChild(lblLeft);
+    const lblRight = document.createElement('div');
+    lblRight.className = 'cap-label';
+    lblRight.style.color = !bigIsLeft ? '#065F46' : '#6B7280';
+    lblRight.textContent = !bigIsLeft ? 'FULL 💧' : 'EMPTY';
+    rightCap.appendChild(lblRight);
+  }
+
   ['half-left','half-right'].forEach(id => {
     const el = document.getElementById(id);
     el.className = 'card-half';
@@ -520,6 +618,134 @@ function renderQuestion() {
   fb.className = 'feedback';
   document.getElementById('next-btn').style.display = 'none';
   questionStartTime = Date.now();
+}
+
+// ── BASE-10 BLOCKS RENDERING ──────────────────────────────────
+function makeBlocks(n, crossed) {
+  const hundreds = Math.floor(n / 100);
+  const tens = Math.floor((n % 100) / 10);
+  const ones = n % 10;
+  let html = '<div class="b10-row">';
+  if (hundreds > 0) {
+    html += '<div class="b10-group"><div class="b10-blocks">';
+    for (let i = 0; i < hundreds && i < 9; i++) {
+      const xed = crossed && i >= (hundreds - Math.floor(crossed / 100));
+      html += `<svg width="30" height="30" viewBox="0 0 30 30"><rect x="1" y="1" width="28" height="28" fill="${xed?'#BDBDBD':'#4A90D9'}" rx="2"/>`;
+      for (let gx = 4; gx < 28; gx+=5) html += `<line x1="${gx}" y1="1" x2="${gx}" y2="29" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>`;
+      for (let gy = 4; gy < 28; gy+=5) html += `<line x1="1" y1="${gy}" x2="29" y2="${gy}" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>`;
+      if (xed) html += `<line x1="2" y1="2" x2="28" y2="28" stroke="#E53935" stroke-width="2"/><line x1="28" y1="2" x2="2" y2="28" stroke="#E53935" stroke-width="2"/>`;
+      html += `</svg>`;
+    }
+    html += `</div><div class="b10-group-label">hundreds</div></div>`;
+  }
+  if (tens > 0) {
+    html += '<div class="b10-group"><div class="b10-blocks">';
+    for (let i = 0; i < tens; i++) {
+      const xed = crossed && hundreds===0 && i >= (tens - Math.floor((crossed%100)/10));
+      html += `<svg width="10" height="36" viewBox="0 0 10 36"><rect x="1" y="1" width="8" height="34" fill="${xed?'#BDBDBD':'#E67E22'}" rx="2"/>`;
+      if (xed) html += `<line x1="1" y1="1" x2="9" y2="35" stroke="#E53935" stroke-width="1.5"/><line x1="9" y1="1" x2="1" y2="35" stroke="#E53935" stroke-width="1.5"/>`;
+      html += `</svg>`;
+    }
+    html += `</div><div class="b10-group-label">tens</div></div>`;
+  }
+  if (ones > 0) {
+    html += '<div class="b10-group"><div class="b10-blocks">';
+    for (let i = 0; i < ones; i++) {
+      const xed = crossed && hundreds===0 && tens===0 && i >= (ones - (crossed%10));
+      html += `<svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="${xed?'#BDBDBD':'#27AE60'}" rx="1"/>`;
+      if (xed) html += `<line x1="1" y1="1" x2="9" y2="9" stroke="#E53935" stroke-width="1"/><line x1="9" y1="1" x2="1" y2="9" stroke="#E53935" stroke-width="1"/>`;
+      html += `</svg>`;
+    }
+    html += `</div><div class="b10-group-label">ones</div></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderArithQuestion(q) {
+  const isAdd = q.cat === 'ADDITION';
+  const op = isAdd ? '+' : '−';
+  const qText = isAdd
+    ? `What is ${q.a} + ${q.b}?`
+    : `What is ${q.a} − ${q.b}?`;
+  document.getElementById('q-text').textContent = qText;
+
+  // Show blocks in the compare-card area (repurpose it)
+  const blocksHtml = isAdd
+    ? `<div style="padding:16px 10px;">
+        <div style="text-align:center;font-size:13px;font-weight:800;color:#6B7280;margin-bottom:6px;">${q.a}</div>
+        ${makeBlocks(q.a, 0)}
+        <div style="text-align:center;font-size:28px;font-weight:900;color:#FF9F1C;margin:6px 0;">${op}</div>
+        <div style="text-align:center;font-size:13px;font-weight:800;color:#6B7280;margin-bottom:6px;">${q.b}</div>
+        ${makeBlocks(q.b, 0)}
+        <div style="text-align:center;font-size:28px;font-weight:900;color:#2D2D2D;margin-top:6px;">= ?</div>
+      </div>`
+    : `<div style="padding:16px 10px;">
+        <div style="text-align:center;font-size:13px;font-weight:800;color:#6B7280;margin-bottom:6px;">${q.a} (cross out ${q.b})</div>
+        ${makeBlocks(q.a, q.b)}
+        <div style="text-align:center;font-size:28px;font-weight:900;color:#2D2D2D;margin-top:6px;">= ?</div>
+      </div>`;
+
+  // Replace card-halves with block display
+  document.querySelector('.compare-card .card-halves').innerHTML = `<div style="width:100%;">${blocksHtml}</div>`;
+  document.querySelector('.compare-card .card-halves').style.flexDirection='column';
+
+  // Choices: correct + 3 wrong
+  const choices = shuffle([q.ans, ...q.wrong]);
+  const choiceHtml = `<div class="arith-grid" id="arith-choices" style="margin-top:12px;">
+    ${choices.map((c,i)=>`<button class="arith-btn" id="ac-${i}" onclick="handleArithAnswer(${c},${i},'${q.cat}')">${c}</button>`).join('')}
+  </div>`;
+  // Inject after the compare-card
+  let existingArith = document.getElementById('arith-choices');
+  if (existingArith) existingArith.remove();
+  document.querySelector('.compare-card').insertAdjacentHTML('afterend', choiceHtml);
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  questionStartTime = Date.now();
+
+  // Hide the half onclick (they won't work for arith)
+  ['half-left','half-right'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.className='card-half'; el.style.pointerEvents='none'; }
+  });
+}
+
+function handleArithAnswer(chosen, idx, cat) {
+  if (answered) return;
+  answered = true;
+  const q = roundQuestions[currentQ];
+  const isCorrect = chosen === q.ans;
+  const responseTimeSec = Math.round((Date.now() - questionStartTime) / 1000);
+  giveToken();
+
+  const choices = shuffle([q.ans, ...q.wrong]);
+  // Re-find the choices from DOM
+  [0,1,2,3].forEach(i => {
+    const btn = document.getElementById('ac-'+i);
+    if (!btn) return;
+    btn.disabled=true;
+    const val = parseInt(btn.textContent);
+    if (val===q.ans) btn.classList.add('correct');
+    else if (i===idx) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback');
+  const nb = document.getElementById('next-btn');
+  if (isCorrect) {
+    correctCount++;
+    fb.className='feedback correct';
+    fb.textContent='⭐ That\'s right! '+q.a+(cat==='ADDITION'?'+':'-')+q.b+'='+q.ans;
+  } else {
+    fb.className='feedback wrong';
+    fb.textContent='Good try! '+q.a+(cat==='ADDITION'?'+':'-')+q.b+'='+q.ans;
+  }
+  fb.style.display='block';
+
+  logAnswer(q, String(chosen), String(q.ans), isCorrect, responseTimeSec);
+
+  nb.textContent = currentQ < roundQuestions.length-1 ? 'Next ➡️' : 'See My Score! 🏆';
+  nb.style.display='block';
 }
 
 function handleAnswer(side) {
@@ -537,28 +763,41 @@ function handleAnswer(side) {
 
   giveToken();
 
+  const wrongSide = side === 'left' ? 'right' : 'left';
+  const wrongLabel = document.getElementById('label-' + wrongSide).textContent;
+
+  // For capacity: A is always bigger; determine which label is bigger
+  const bigLabel = q.askBig ? correctLabel : wrongLabel;
+  const smallLabel = q.askBig ? wrongLabel : correctLabel;
+
   const fb = document.getElementById('feedback');
   if (isCorrect) {
     correctCount++;
     document.getElementById('half-' + side).classList.add('correct');
     fb.className = 'feedback correct';
-    fb.textContent = '⭐ That\'s right!';
+    if (q.cat === 'CAPACITY') {
+      fb.innerHTML = '⭐ That\'s right! The <strong>' + bigLabel + '</strong> holds MORE — it is <span style="color:#065F46;">FULL 💧</span>! The <strong>' + smallLabel + '</strong> holds LESS — it is <span style="color:#6B7280;">almost EMPTY</span>!';
+    } else {
+      fb.textContent = '⭐ That\'s right!';
+    }
     fb.style.display = 'block';
   } else {
     document.getElementById('half-' + side).classList.add('wrong');
     document.getElementById('half-' + correctSide).classList.add('show-correct');
     fb.className = 'feedback wrong';
-    fb.textContent = 'Good try! Look at the green one — that\'s the answer!';
+    if (q.cat === 'CAPACITY') {
+      fb.innerHTML = 'Good try! The <strong>' + bigLabel + '</strong> holds MORE — it is <span style="color:#065F46;">FULL 💧</span>! Look at the green one!';
+    } else {
+      fb.textContent = 'Good try! Look at the green one — that\'s the answer!';
+    }
     fb.style.display = 'block';
   }
 
   logAnswer(q, answerLabel, correctLabel, isCorrect, responseTimeSec);
 
-  if (tokens < TOKENS_NEEDED || localStorage.getItem('tokenMode') === 'session') {
-    const nb = document.getElementById('next-btn');
-    nb.textContent = currentQ < roundQuestions.length - 1 ? 'Next ➡️' : 'See My Score! 🏆';
-    nb.style.display = 'block';
-  }
+  const nb = document.getElementById('next-btn');
+  nb.textContent = currentQ < roundQuestions.length - 1 ? 'Next ➡️' : 'See My Score! 🏆';
+  nb.style.display = 'block';
 }
 
 function nextQuestion() {
@@ -646,7 +885,9 @@ function logAnswer(q, answerGiven, correctAnswer, isCorrect, responseTimeSec) {
     date: now.toLocaleDateString("en-US"),
     time: now.toLocaleTimeString("en-US", {hour:"2-digit", minute:"2-digit"}),
     category: q.cat,
-    question: q.displayQ + ' (' + q.aLabel + ' vs ' + q.bLabel + ')',
+    question: (q.cat === 'ADDITION' || q.cat === 'SUBTRACTION')
+      ? (q.a + (q.cat === 'ADDITION' ? ' + ' : ' - ') + q.b + ' = ?')
+      : (q.displayQ + ' (' + q.aLabel + ' vs ' + q.bLabel + ')'),
     correctAnswer: correctAnswer,
     answerGiven: answerGiven,
     correct: isCorrect,

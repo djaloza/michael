@@ -53,8 +53,18 @@
   .badge-WHERE { background: #FFF1F2; color: #9F1239; }
   .badge-HOW   { background: #F5F3FF; color: #5B21B6; }
   .badge-CAUSE { background: #FFF1F2; color: #9F1239; }
-  .badge-WHY   { background: #ECFDF5; color: #065F46; }
-  .q-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 4px; }
+  .badge-WHY   { background: #FF6B6B; color: white; }
+  .badge-FIRST { background: #EEF2FF; color: #3B82F6; }
+  .badge-NEXT  { background: #ECFDF5; color: #06A87B; }
+  .badge-THEN  { background: #FFF7ED; color: #D97706; }
+  .badge-LAST  { background: #F5F3FF; color: #7B5EA7; }
+  /* SEQUENCE */
+  .seq-placeholder { flex:1; min-width:100px; height:84px; border-radius:16px; border:3px dashed; display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;letter-spacing:1px; }
+  .seq-placed { flex:1; min-width:100px; height:84px; border-radius:16px; border:3px solid; display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;text-align:center;padding:4px 6px;gap:3px; }
+  .seq-card { border-radius:14px; padding:14px 10px; font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-align:center;border:3px solid #DDE3F0;background:white;color:#2D2D2D;touch-action:manipulation;transition:opacity 0.2s; }
+  .seq-card.used { opacity:0.25; pointer-events:none; }
+  .seq-card:active { opacity:0.7; }
+  .q-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 4px; flex-wrap: wrap; }
   .q-dot { width: 16px; height: 16px; border-radius: 50%; background: #DDE3F0; transition: background 0.3s; }
   .q-dot.done { background: #06D6A0; }
   .q-dot.current { background: #5B8DEF; }
@@ -76,6 +86,30 @@
   .pick-clock { background:#7B5EA7; box-shadow:0 5px 0 #5a4180; }
   .pick-shapes{ background:#EF476F; box-shadow:0 5px 0 #b8304f; }
   .pick-vocab { background:#06D6A0; box-shadow:0 5px 0 #04a07a; }
+  .pick-lang  { background:#06D6A0; box-shadow:0 5px 0 #04a07a; }
+  .cl-entry { font-size:14px; font-weight:600; color:#374151; padding:10px 0; border-bottom:1px solid #F3F4F6; line-height:1.5; }
+  .cl-entry:last-child { border-bottom:none; }
+  .cl-ver { display:inline-block; font-size:12px; font-weight:900; color:#5B8DEF; background:#EEF2FF; border-radius:8px; padding:2px 8px; margin-right:8px; white-space:nowrap; }
+  .set-section { margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid #F3F4F6; }
+  .set-section:last-child { border-bottom:none; margin-bottom:0; }
+  .set-section-title { font-size:16px; font-weight:900; color:#5B8DEF; margin-bottom:10px; }
+  .set-group { margin-bottom:14px; }
+  .set-group:last-child { margin-bottom:0; }
+  .set-label { font-size:13px; font-weight:800; color:#6B7280; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+  .set-opt { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; border:2px solid #DDE3F0; cursor:pointer; margin-bottom:6px; background:white; transition:border-color .15s, background .15s; }
+  .set-opt:has(input:checked) { border-color:#5B8DEF; background:#F0F5FF; }
+  .set-opt input { width:18px; height:18px; cursor:pointer; flex-shrink:0; }
+  .set-opt-title { font-size:14px; font-weight:800; color:#2D2D2D; }
+  .set-opt-desc { font-size:12px; color:#6B7280; font-weight:600; line-height:1.3; }
+  .set-row { display:flex; gap:6px; flex-wrap:wrap; }
+  .set-chip { flex:1; min-width:64px; cursor:pointer; }
+  .set-chip input { display:none; }
+  .set-chip span { display:block; text-align:center; padding:8px 6px; border-radius:10px; border:2px solid #DDE3F0; background:white; font-size:13px; font-weight:800; color:#374151; transition:all .15s; line-height:1.2; }
+  .set-chip span small { font-size:10px; font-weight:600; color:#9CA3AF; display:block; margin-top:1px; }
+  .set-chip input:checked + span { border-color:#5B8DEF; background:#F0F5FF; color:#1E40AF; }
+  .set-chip input:checked + span small { color:#5B8DEF; }
+  .set-toggle { display:flex; align-items:center; gap:10px; padding:8px 0; cursor:pointer; font-size:14px; font-weight:700; color:#374151; }
+  .set-toggle input { width:18px; height:18px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -95,6 +129,8 @@
         <option value="E">Student E</option>
         <option value="F">Student F</option>
       </select>
+      <button onclick="openSettings()" style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:4px 9px;border-radius:12px;border:2px solid #DDE3F0;background:white;color:#6B7280;cursor:pointer;touch-action:manipulation;" title="Settings">⚙️</button>
+      <button onclick="document.getElementById('changelog-modal').style.display='flex'" style="font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;padding:4px 10px;border-radius:12px;border:2px solid #DDE3F0;background:white;color:#9CA3AF;cursor:pointer;touch-action:manipulation;">v0.01.08</button>
       <button class="test-toggle" id="test-toggle" onclick="toggleTestMode()">🧪 Test Mode</button>
       <div class="token-pill"><span style="font-size:20px">⭐</span><strong id="token-count">0/5</strong></div>
     </div>
@@ -106,8 +142,10 @@
   <div id="screen-welcome" class="screen active" style="text-align:center;padding-top:12px;">
     <div class="bounce" style="font-size:96px;margin-bottom:16px;">📖</div>
     <div style="font-size:36px;font-weight:900;color:#5B8DEF;margin-bottom:8px;">Hi Michael!</div>
-    <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:6px;">Read stories. Earn tokens. Watch a video!</div>
-    <div style="font-size:17px;color:#9CA3AF;font-weight:600;margin-bottom:28px;">Answer 1 question = 1 ⭐ · Fill 5 stars = 🎬 video!</div>
+    <div id="welcome-hint">
+      <div style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:6px;">Read stories. Earn tokens. Watch a video!</div>
+      <div style="font-size:17px;color:#9CA3AF;font-weight:600;margin-bottom:28px;">Answer 1 question = 1 ⭐ · Fill 10 stars = 🎬 video!</div>
+    </div>
     <div id="welcome-token-board"></div>
     <div id="all-done-banner" class="all-done-banner" style="display:none;">🎉 You read ALL 52 stories! Shuffling them again!</div>
     <div id="stories-progress" class="stories-progress"></div>
@@ -123,6 +161,21 @@
       <div id="story-text" class="story-text"></div>
     </div>
     <button class="big-btn purple full-btn" onclick="goToQuestions()">🎯 Ready for Questions!</button>
+  </div>
+
+  <!-- RE-READ BREAK -->
+  <div id="screen-reread" class="screen" style="padding-top:12px;">
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:64px;">📖</div>
+      <div style="font-size:26px;font-weight:900;color:#5B8DEF;margin-bottom:6px;">Great work so far!</div>
+      <div style="font-size:18px;color:#6B7280;font-weight:700;">Let's read the story one more time before we keep going!</div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div id="reread-emoji" style="font-size:56px;text-align:center;margin-bottom:10px;"></div>
+      <div id="reread-title" style="font-size:22px;font-weight:900;color:#5B8DEF;text-align:center;margin-bottom:14px;"></div>
+      <div id="reread-text" class="story-text" style="font-size:19px;"></div>
+    </div>
+    <button class="big-btn green full-btn" onclick="continueAfterReread()">Got it! Keep going! ➡️</button>
   </div>
 
   <!-- QUESTIONS -->
@@ -145,7 +198,6 @@
     <div id="result-score" style="font-size:20px;color:#6B7280;font-weight:600;margin-bottom:24px;"></div>
     <div class="progress-bar-bg"><div id="result-bar" class="progress-bar-fill" style="width:0%;"></div></div>
     <div id="result-token-board"></div>
-    <button class="big-btn green" onclick="startStory()">Read Another Story! 📚</button>
   </div>
 
   <!-- REWARD -->
@@ -172,10 +224,94 @@
     <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:420px;margin:0 auto;">
       <button onclick="pickNext('index.html')" class="pick-btn pick-story">📚 Story Time</button>
       <button onclick="pickNext('math.html')" class="pick-btn pick-math">📐 Math Time</button>
+      <button onclick="pickNext('language.html')" class="pick-btn pick-lang">🗣️ Language Time</button>
       <button onclick="pickNext('clock.html')" class="pick-btn pick-clock">🕐 Clock Time</button>
       <button onclick="pickNext('shapes.html')" class="pick-btn pick-shapes">🔷 Shapes</button>
       <button onclick="pickNext('vocabulary.html')" class="pick-btn pick-vocab">📝 Vocabulary</button>
     </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:flex-start;justify-content:center;padding-top:40px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:white;border-radius:24px;padding:22px;max-width:440px;width:94%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:22px;font-weight:900;color:#5B8DEF;">⚙️ Settings</div>
+      <button onclick="document.getElementById('settings-modal').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer;color:#9CA3AF;line-height:1;">✕</button>
+    </div>
+
+    <div class="set-section">
+      <div class="set-section-title">🎁 Rewards</div>
+
+      <div class="set-group">
+        <div class="set-label">When does Michael earn a token?</div>
+        <label class="set-opt"><input type="radio" name="tokenAwardMode" value="all" onchange="saveSetting('tokenAwardMode', this.value)"><div><div class="set-opt-title">Every answer</div><div class="set-opt-desc">Token for any answered question — encourages participation</div></div></label>
+        <label class="set-opt"><input type="radio" name="tokenAwardMode" value="correct_only" onchange="saveSetting('tokenAwardMode', this.value)"><div><div class="set-opt-title">Only correct answers</div><div class="set-opt-desc">Token only when the answer is right — rewards accuracy</div></div></label>
+      </div>
+
+      <div class="set-group">
+        <div class="set-label">How many tokens to earn a video?</div>
+        <div class="set-row">
+          <label class="set-chip"><input type="radio" name="tokensNeeded" value="5"  onchange="saveTokensNeeded(this.value)"><span>5</span></label>
+          <label class="set-chip"><input type="radio" name="tokensNeeded" value="10" onchange="saveTokensNeeded(this.value)"><span>10</span></label>
+          <label class="set-chip"><input type="radio" name="tokensNeeded" value="15" onchange="saveTokensNeeded(this.value)"><span>15</span></label>
+          <label class="set-chip"><input type="radio" name="tokensNeeded" value="20" onchange="saveTokensNeeded(this.value)"><span>20</span></label>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <div class="set-label">YouTube video length</div>
+        <div class="set-row">
+          <label class="set-chip"><input type="radio" name="videoLength" value="short"  onchange="saveSetting('videoLength', this.value)"><span>Short<br><small>under 4 min</small></span></label>
+          <label class="set-chip"><input type="radio" name="videoLength" value="medium" onchange="saveSetting('videoLength', this.value)"><span>Medium<br><small>4–20 min</small></span></label>
+          <label class="set-chip"><input type="radio" name="videoLength" value="long"   onchange="saveSetting('videoLength', this.value)"><span>Long<br><small>20+ min</small></span></label>
+          <label class="set-chip"><input type="radio" name="videoLength" value="any"    onchange="saveSetting('videoLength', this.value)"><span>Any<br><small>no filter</small></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-section">
+      <div class="set-section-title">📖 Questions</div>
+
+      <div class="set-group">
+        <div class="set-label">Re-read story mid-questions</div>
+        <div class="set-row">
+          <label class="set-chip"><input type="radio" name="rereadAfter" value="3"     onchange="saveSetting('rereadAfter', this.value)"><span>After Q3</span></label>
+          <label class="set-chip"><input type="radio" name="rereadAfter" value="5"     onchange="saveSetting('rereadAfter', this.value)"><span>After Q5</span></label>
+          <label class="set-chip"><input type="radio" name="rereadAfter" value="7"     onchange="saveSetting('rereadAfter', this.value)"><span>After Q7</span></label>
+          <label class="set-chip"><input type="radio" name="rereadAfter" value="never" onchange="saveSetting('rereadAfter', this.value)"><span>Never</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-section">
+      <div class="set-section-title">🏠 Main Screen</div>
+
+      <div class="set-group">
+        <label class="set-toggle"><input type="checkbox" id="set-show-progress" onchange="saveToggle('showStoriesProgress', this.checked)"><span>Show stories-remaining counter</span></label>
+        <label class="set-toggle"><input type="checkbox" id="set-show-welcome-board" onchange="saveToggle('showWelcomeTokenBoard', this.checked)"><span>Show token board on welcome screen</span></label>
+        <label class="set-toggle"><input type="checkbox" id="set-show-hint" onchange="saveToggle('showWelcomeHint', this.checked)"><span>Show "how it works" hint text</span></label>
+        <label class="set-toggle"><input type="checkbox" id="set-hide-test-mode" onchange="saveToggle('hideTestMode', this.checked)"><span>Hide 🧪 Test Mode button (kid can't tap)</span></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGELOG MODAL -->
+<div id="changelog-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:flex-start;justify-content:center;padding-top:60px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:white;border-radius:24px;padding:24px 22px;max-width:420px;width:92%;max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:20px;font-weight:900;color:#5B8DEF;">📋 Changelog</div>
+      <button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#9CA3AF;line-height:1;">✕</button>
+    </div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.08</span>Added ⚙️ Settings panel — toggle when tokens are awarded (every answer / correct only), tokens needed for video (5/10/15/20), YouTube length filter, re-read break timing, and main-screen toggles (progress counter, welcome token board, hint text, hide test mode)</div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.07</span>Sequence questions merged into the main question flow — single dot row, single combined score (e.g. 11/12); token board now refreshes on every screen the moment a star is earned</div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.06</span>Seamless flow — questions go straight into story order challenge with no extra screen; changelog button added</div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.05</span>Auto-advance after questions &amp; sequence; tokens only awarded for correct answers</div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.04</span>Re-read break shown after question 5 to help memory</div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.03</span>Sequence challenge redesigned as 4 individual MC questions (FIRST / NEXT / THEN / LAST)</div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.02</span>Token board expanded to 10 stars; tokens accumulate freely with flex-wrap display</div>
+    <div class="cl-entry"><span class="cl-ver">v0.01.01</span>Fixed YouTube reward timing — reward fires after result/sequence screens, not mid-question</div>
   </div>
 </div>
 
@@ -234,7 +370,7 @@ const STORIES = [
   {title:"Theo and the Talking Fish",e:"🐡",story:"<b>Theo</b> was fishing with his grandpa at the lake when he caught a golden fish. The fish popped its head above water and said, 'Put me back and I will grant you one wish!' Theo thought very hard. He wished his grandpa would always be healthy. The fish smiled and splashed back into the lake.",questions:[{type:"WHO",q:"Who caught the golden fish?",choices:[{e:"👦",l:"Theo",c:true},{e:"👴",l:"His grandpa",c:false},{e:"👧",l:"His sister",c:false},{e:"👩",l:"His mom",c:false}]},{type:"WHAT",q:"What did the fish offer?",choices:[{e:"✨",l:"One wish",c:true},{e:"💰",l:"Gold coins",c:false},{e:"🍎",l:"Magic fruit",c:false},{e:"🗺️",l:"A treasure map",c:false}]},{type:"WHEN",q:"When did Theo catch the fish?",choices:[{e:"🎣",l:"While fishing at the lake",c:true},{e:"🌙",l:"At night in his room",c:false},{e:"🏫",l:"At school",c:false},{e:"🛒",l:"At the store",c:false}]},{type:"WHERE",q:"Where did the fish go after?",choices:[{e:"🌊",l:"Back into the lake",c:true},{e:"🏠",l:"Into the house",c:false},{e:"🚗",l:"Into the car",c:false},{e:"🌳",l:"Up a tree",c:false}]},{type:"HOW",q:"What did Theo wish for?",choices:[{e:"❤️",l:"Grandpa's health",c:true},{e:"💰",l:"Lots of money",c:false},{e:"🎮",l:"A video game",c:false},{e:"🚀",l:"A rocket ship",c:false}]}]}
 ];
 
-const TOKENS_NEEDED = 5;
+let TOKENS_NEEDED = parseInt(localStorage.getItem('tokensNeeded') || '10', 10);
 const shuffle = arr => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -253,6 +389,7 @@ let currentQ = 0;
 let correctCount = 0;
 let answered = false;
 let shuffledChoices = [];
+let storyQuestions = []; // current story's full question list (regular + sequence merged)
 let currentSearch = "";
 
 function buildOrder() {
@@ -271,25 +408,46 @@ function renderTokenBoard(id) {
   if (!el) return;
   if (localStorage.getItem('tokenMode') === 'session') { el.innerHTML = ''; return; }
   const left = TOKENS_NEEDED - tokens;
+  const msg = tokens >= TOKENS_NEEDED ? '🎬 Video time!' : left + ' more for your video!';
+  const filled = Array.from({length: tokens}, () => `<div class="token-circle filled">⭐</div>`).join('');
+  const empty = tokens < TOKENS_NEEDED ? Array.from({length: TOKENS_NEEDED - tokens}, () => `<div class="token-circle empty"></div>`).join('') : '';
   el.innerHTML = `<div class="token-board">
     <div class="token-board-header">
       <span class="token-board-label">TOKEN BOARD</span>
-      <span class="token-board-msg">${tokens >= TOKENS_NEEDED ? '🎬 Video time!' : left + ' more for your video!'}</span>
+      <span class="token-board-msg">${msg}</span>
     </div>
-    <div class="token-circles">
-      ${Array.from({length: TOKENS_NEEDED}, (_, i) =>
-        `<div class="token-circle ${i < tokens ? 'filled' : 'empty'}">${i < tokens ? '⭐' : ''}</div>`
-      ).join('')}
+    <div class="token-circles" style="flex-wrap:wrap;">
+      ${filled}${empty}
     </div>
   </div>`;
 }
 
 function updateWelcome() {
   document.getElementById('token-count').textContent = tokens + '/' + TOKENS_NEEDED;
-  renderTokenBoard('welcome-token-board');
-  const remaining = storyOrder.length - orderPos;
-  document.getElementById('stories-progress').textContent =
-    `📖 ${remaining} of ${STORIES.length} stories left this round`;
+
+  const wb = document.getElementById('welcome-token-board');
+  if (localStorage.getItem('showWelcomeTokenBoard') === 'false') wb.innerHTML = '';
+  else renderTokenBoard('welcome-token-board');
+
+  const sp = document.getElementById('stories-progress');
+  if (localStorage.getItem('showStoriesProgress') === 'false') {
+    sp.style.display = 'none';
+  } else {
+    const remaining = storyOrder.length - orderPos;
+    sp.textContent = `📖 ${remaining} of ${STORIES.length} stories left this round`;
+    sp.style.display = '';
+  }
+
+  const hint = document.getElementById('welcome-hint');
+  if (hint) hint.style.display = localStorage.getItem('showWelcomeHint') === 'false' ? 'none' : '';
+
+  applyTestModeVisibility();
+}
+
+function applyTestModeVisibility() {
+  const btn = document.getElementById('test-toggle');
+  if (!btn) return;
+  btn.style.display = localStorage.getItem('hideTestMode') === 'true' ? 'none' : '';
 }
 
 function showBurst() {
@@ -301,10 +459,11 @@ function showBurst() {
 }
 
 function giveToken() {
-  if (tokens < TOKENS_NEEDED) tokens++;
+  tokens++;
   document.getElementById('token-count').textContent = tokens + '/' + TOKENS_NEEDED;
-  renderTokenBoard('q-token-board');
-  if (tokens >= TOKENS_NEEDED && localStorage.getItem('tokenMode') !== 'session') setTimeout(showReward, 1100);
+  // Refresh every token board so whichever screen is visible stays in sync
+  ['welcome-token-board','story-token-board','q-token-board','result-token-board']
+    .forEach(id => renderTokenBoard(id));
 }
 
 function resetTokens() { tokens = 0; }
@@ -322,8 +481,27 @@ function startStory() {
   orderPos++;
 
   const story = STORIES[currentStoryIdx];
-  // Shuffle choices for each question
-  shuffledChoices = story.questions.map(q => shuffle(q.choices));
+
+  // Build the merged question list: regular questions + sequence questions (if present)
+  storyQuestions = story.questions.slice();
+  if (story.sequenceEvents) {
+    const SEQ_LABELS = ['FIRST','NEXT','THEN','LAST'];
+    story.sequenceEvents.forEach((evt, i) => {
+      const others = story.sequenceEvents.filter((_, j) => j !== i);
+      storyQuestions.push({
+        type: SEQ_LABELS[i],          // also drives badge style: badge-FIRST etc.
+        q: 'What happened ' + SEQ_LABELS[i] + '?',
+        choices: [
+          { l: evt,       c: true  },
+          { l: others[0], c: false },
+          { l: others[1], c: false },
+          { l: others[2], c: false }
+        ]
+      });
+    });
+  }
+
+  shuffledChoices = storyQuestions.map(q => shuffle(q.choices));
   correctCount = 0; currentQ = 0; answered = false;
 
   renderTokenBoard('story-token-board');
@@ -341,14 +519,13 @@ function goToQuestions() {
 }
 
 function renderQuestion() {
-  const story = STORIES[currentStoryIdx];
-  const q = story.questions[currentQ];
+  const q = storyQuestions[currentQ];
   const choices = shuffledChoices[currentQ];
 
   renderTokenBoard('q-token-board');
 
-  // Dots
-  document.getElementById('q-dots').innerHTML = story.questions.map((_, i) =>
+  // Dots — one per question (regular + sequence combined)
+  document.getElementById('q-dots').innerHTML = storyQuestions.map((_, i) =>
     `<div class="q-dot ${i < currentQ ? 'done' : i === currentQ ? 'current' : ''}"></div>`
   ).join('');
 
@@ -364,7 +541,7 @@ function renderQuestion() {
 
   document.getElementById('choice-grid').innerHTML = choices.map((c, i) =>
     `<button class="choice-btn" id="ch-${i}" onclick="handleAnswer(${c.c}, ${i})">
-      <span class="emoji">${c.e}</span><span>${c.l}</span>
+      ${c.e ? `<span class="emoji">${c.e}</span>` : ''}<span>${c.l}</span>
     </button>`
   ).join('');
 }
@@ -372,7 +549,6 @@ function renderQuestion() {
 function handleAnswer(isCorrect, idx) {
   if (answered) return;
   answered = true;
-  giveToken();
 
   const choices = shuffledChoices[currentQ];
   const chosenLabel = choices[idx].l;
@@ -387,6 +563,10 @@ function handleAnswer(isCorrect, idx) {
   const fb = document.getElementById('feedback');
   const nb = document.getElementById('next-btn');
 
+  // Award token per setting: 'all' = every answer, 'correct_only' = only when right
+  const awardMode = localStorage.getItem('tokenAwardMode') || 'all';
+  if (isCorrect || awardMode !== 'correct_only') giveToken();
+
   if (isCorrect) {
     correctCount++;
     fb.className = 'feedback correct';
@@ -395,28 +575,43 @@ function handleAnswer(isCorrect, idx) {
   } else {
     const correct = choices.find(c => c.c);
     fb.className = 'feedback wrong';
-    fb.textContent = 'Good try! The answer is: ' + correct.e + ' ' + correct.l;
+    fb.textContent = 'Good try! The answer is: ' + (correct.e ? correct.e + ' ' : '') + correct.l;
   }
   fb.style.display = 'block';
 
-  if (tokens < TOKENS_NEEDED || localStorage.getItem('tokenMode') === 'session') {
-    const totalQ = STORIES[currentStoryIdx].questions.length;
-    nb.textContent = currentQ < totalQ - 1 ? 'Next ➡️' : 'See My Score! 🏆';
-    nb.style.display = 'block';
-  }
+  const totalQ = storyQuestions.length;
+  nb.textContent = currentQ < totalQ - 1 ? 'Next ➡️' : 'Done! 🏆';
+  nb.style.display = 'block';
 }
 
 function nextQuestion() {
-  const totalQ = STORIES[currentStoryIdx].questions.length;
+  const totalQ = storyQuestions.length;
   currentQ++;
   answered = false;
-  if (currentQ < totalQ) renderQuestion();
-  else if (localStorage.getItem('tokenMode') === 'session') sessionRoundComplete();
-  else showResult();
+  const rereadSetting = localStorage.getItem('rereadAfter') || '5';
+  const rereadQ = rereadSetting === 'never' ? -1 : parseInt(rereadSetting, 10);
+  if (rereadQ > 0 && currentQ === rereadQ && totalQ > rereadQ) {
+    const story = STORIES[currentStoryIdx];
+    document.getElementById('reread-emoji').textContent  = story.e;
+    document.getElementById('reread-title').textContent  = story.title;
+    document.getElementById('reread-text').innerHTML     = story.story;
+    showScreen('reread');
+  } else if (currentQ < totalQ) {
+    renderQuestion();
+  } else if (localStorage.getItem('tokenMode') === 'session') {
+    sessionRoundComplete();
+  } else {
+    showResult();
+  }
+}
+
+function continueAfterReread() {
+  showScreen('questions');
+  renderQuestion();
 }
 
 function showResult() {
-  const totalQ = STORIES[currentStoryIdx].questions.length;
+  const totalQ = storyQuestions.length;
   const pct = Math.round((correctCount / totalQ) * 100);
   document.getElementById('result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🌟' : '💪';
   document.getElementById('result-title').textContent =
@@ -426,9 +621,17 @@ function showResult() {
   renderTokenBoard('result-token-board');
   showScreen('result');
   setTimeout(() => { document.getElementById('result-bar').style.width = pct + '%'; }, 100);
+  if (tokens >= TOKENS_NEEDED) {
+    setTimeout(showReward, 2500);
+  } else {
+    setTimeout(startStory, 2500);
+  }
 }
 
 function showReward() {
+  tokens = 0;
+  document.getElementById('token-count').textContent = '0/' + TOKENS_NEEDED;
+  renderTokenBoard('q-token-board');
   const searches = ["Bluey full episodes kids","Mario Bros cartoon for kids","Minecraft funny animation kids",
     "Pokemon cartoon episodes kids","SpongeBob funny moments","cartoon funny animals kids",
     "Paw Patrol episodes","funny video game cartoons kids"];
@@ -442,7 +645,14 @@ function showReward() {
 }
 
 function openYouTube() {
-  window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(currentSearch) + '&sp=EgIYAQ%3D%3D', '_blank');
+  const LENGTH_PARAMS = {
+    any:    '',
+    short:  '&sp=EgIYAQ%3D%3D',
+    medium: '&sp=EgIYAw%3D%3D',
+    long:   '&sp=EgIYAg%3D%3D'
+  };
+  const lenParam = LENGTH_PARAMS[localStorage.getItem('videoLength') || 'long'] || '';
+  window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(currentSearch) + lenParam, '_blank');
 }
 
 function sessionRoundComplete() {
@@ -490,15 +700,56 @@ function toggleTestMode() {
   banner.style.display = isTestMode ? 'block' : 'none';
 }
 
+// ── Settings ─────────────────────────────────────────────────
+function openSettings() {
+  // Sync radio buttons / checkboxes with current localStorage values
+  const mode = localStorage.getItem('tokenAwardMode') || 'all';
+  document.querySelectorAll('input[name="tokenAwardMode"]').forEach(r => r.checked = (r.value === mode));
+
+  const tn = localStorage.getItem('tokensNeeded') || '10';
+  document.querySelectorAll('input[name="tokensNeeded"]').forEach(r => r.checked = (r.value === tn));
+
+  const vl = localStorage.getItem('videoLength') || 'long';
+  document.querySelectorAll('input[name="videoLength"]').forEach(r => r.checked = (r.value === vl));
+
+  const ra = localStorage.getItem('rereadAfter') || '5';
+  document.querySelectorAll('input[name="rereadAfter"]').forEach(r => r.checked = (r.value === ra));
+
+  document.getElementById('set-show-progress').checked      = localStorage.getItem('showStoriesProgress')   !== 'false';
+  document.getElementById('set-show-welcome-board').checked = localStorage.getItem('showWelcomeTokenBoard') !== 'false';
+  document.getElementById('set-show-hint').checked          = localStorage.getItem('showWelcomeHint')       !== 'false';
+  document.getElementById('set-hide-test-mode').checked     = localStorage.getItem('hideTestMode')          === 'true';
+
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+
+function saveSetting(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function saveToggle(key, checked) {
+  localStorage.setItem(key, checked ? 'true' : 'false');
+  updateWelcome();
+}
+
+function saveTokensNeeded(value) {
+  localStorage.setItem('tokensNeeded', value);
+  TOKENS_NEEDED = parseInt(value, 10);
+  document.getElementById('token-count').textContent = tokens + '/' + TOKENS_NEEDED;
+  ['welcome-token-board','story-token-board','q-token-board','result-token-board']
+    .forEach(id => renderTokenBoard(id));
+}
+
 function logAnswer(isCorrect, chosenLabel) {
   if (currentStudent !== 'Michael') return;
   const now = new Date();
   const story = STORIES[currentStoryIdx];
-  const q = story.questions[currentQ];
+  const q = storyQuestions[currentQ];
+  const isSeq = ['FIRST','NEXT','THEN','LAST'].includes(q.type);
   const responseTimeSec = questionStartTime ? Math.round((Date.now() - questionStartTime) / 1000) : null;
 
   const payload = {
-    appSource: "story",
+    appSource: isSeq ? "story_sequence" : "story",
     date: now.toLocaleDateString("en-US"),
     time: now.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit"}),
     story: story.title,
@@ -572,10 +823,96 @@ const WHY_ADDITIONS = {
   "Hana and the Hiccuping Horse":{type:"WHY",q:"Why did the author write this story?",choices:whyChoices("To make us laugh 😄")}
 };
 
-// Merge CAUSE and WHY into STORIES
+// ---- INFERENTIAL WHY questions (per-story, goalCode SAI1) ----
+const INFERENTIAL_WHY = {
+  "Leo Goes to the Park":            {type:"WHY",q:"Why did Leo feel happy at the end?",choices:[{e:"👫",l:"He made a new friend",c:true},{e:"😴",l:"He was tired",c:false},{e:"🌧️",l:"It started raining",c:false},{e:"🏠",l:"He wanted to go home",c:false}]},
+  "Mia Bakes Cookies":               {type:"WHY",q:"Why did Mia share the cookies with Max?",choices:[{e:"❤️",l:"She cared about her friend",c:true},{e:"🍪",l:"She had too many",c:false},{e:"😴",l:"She didn't want them",c:false},{e:"🏪",l:"She had to sell them",c:false}]},
+  "Rex Finds a Bone":                {type:"WHY",q:"Why did Rex bury the bone again?",choices:[{e:"🦴",l:"To save it for later",c:true},{e:"😴",l:"He was tired",c:false},{e:"🌧️",l:"It started raining",c:false},{e:"🐾",l:"He forgot about it",c:false}]},
+  "Sam Sees a Rainbow":              {type:"WHY",q:"Why did Sam run outside?",choices:[{e:"🌈",l:"He was excited about the rainbow",c:true},{e:"⚽",l:"He wanted to play ball",c:false},{e:"🌧️",l:"The rain stopped",c:false},{e:"🏃",l:"He needed exercise",c:false}]},
+  "Zara Visits the Zoo":             {type:"WHY",q:"Why did Zara love the elephant the most?",choices:[{e:"💦",l:"It sprayed water on her",c:true},{e:"🦁",l:"It was the biggest",c:false},{e:"🍦",l:"She got ice cream after",c:false},{e:"📸",l:"She took a photo",c:false}]},
+  "Pip Flies a Kite":                {type:"WHY",q:"Why did Pip laugh and dance?",choices:[{e:"🪁",l:"The kite flew high",c:true},{e:"🌤️",l:"The sun came out",c:false},{e:"👫",l:"Her friend arrived",c:false},{e:"🍬",l:"She got a treat",c:false}]},
+  "Benny Builds a Robot":            {type:"WHY",q:"Why was Benny proud of his robot?",choices:[{e:"💡",l:"It lit up and beeped",c:true},{e:"🎨",l:"It looked pretty",c:false},{e:"🏆",l:"He won a prize",c:false},{e:"📺",l:"It watched TV",c:false}]},
+  "Nina Finds a Puppy":              {type:"WHY",q:"Why did Nina's mom say they could keep the puppy?",choices:[{e:"❤️",l:"She saw how much Nina loved it",c:true},{e:"🐕",l:"It was very small",c:false},{e:"💰",l:"It was free",c:false},{e:"🏠",l:"They had a big yard",c:false}]},
+  "Carlos and the Big Wave":         {type:"WHY",q:"Why did Carlos laugh after getting knocked down?",choices:[{e:"😄",l:"He thought it was fun",c:true},{e:"😢",l:"He was trying not to cry",c:false},{e:"👫",l:"His friends laughed first",c:false},{e:"🌊",l:"The wave was tiny",c:false}]},
+  "Luna the Space Cat":              {type:"WHY",q:"Why did Luna take a moon rock home?",choices:[{e:"🌙",l:"To remember her adventure",c:true},{e:"💎",l:"It was valuable",c:false},{e:"🐱",l:"All cats collect rocks",c:false},{e:"🚀",l:"She had to",c:false}]},
+  "Tomas Learns to Ride":            {type:"WHY",q:"Why did Tomas keep trying even after falling?",choices:[{e:"💪",l:"He really wanted to learn",c:true},{e:"👨",l:"His dad made him",c:false},{e:"🚲",l:"He had a new bike",c:false},{e:"🏆",l:"There was a prize",c:false}]},
+  "Ella and the Magic Paintbrush":   {type:"WHY",q:"Why did Ella keep painting more things?",choices:[{e:"✨",l:"She loved that they came alive",c:true},{e:"🎨",l:"She was practicing",c:false},{e:"📚",l:"It was homework",c:false},{e:"👧",l:"Her friend asked her to",c:false}]},
+  "Max and the Thunderstorm":        {type:"WHY",q:"Why did Max feel safe after Pepper jumped on the bed?",choices:[{e:"🐕",l:"His pet was with him",c:true},{e:"⛈️",l:"The storm stopped",c:false},{e:"💡",l:"The lights came on",c:false},{e:"👪",l:"His parents came in",c:false}]},
+  "Sofia Plants a Seed":             {type:"WHY",q:"Why did Sofia water the seed every day?",choices:[{e:"🌱",l:"So it would grow",c:true},{e:"💧",l:"She liked watering",c:false},{e:"🌞",l:"The sun was hot",c:false},{e:"📚",l:"Her teacher said so",c:false}]},
+  "Jake and the Lost Shoe":          {type:"WHY",q:"Why was the shoe in the dog basket?",choices:[{e:"🐕",l:"The dog took it there",c:true},{e:"👦",l:"Jake put it there",c:false},{e:"🏃",l:"It fell off while running",c:false},{e:"👟",l:"It was the dog's shoe",c:false}]},
+  "Lily Wins the Race":              {type:"WHY",q:"Why did Lily win the race?",choices:[{e:"🏃",l:"She trained every day",c:true},{e:"🍀",l:"She got lucky",c:false},{e:"😴",l:"Others were slow",c:false},{e:"🏆",l:"She cheated",c:false}]},
+  "Oscar the Octopus":               {type:"WHY",q:"Why did the fish throw Oscar a party?",choices:[{e:"🎨",l:"He painted them beautiful colors",c:true},{e:"🎂",l:"It was his birthday",c:false},{e:"🐠",l:"He saved them",c:false},{e:"🌊",l:"He was leaving",c:false}]},
+  "Maya and the Secret Garden":      {type:"WHY",q:"Why did Maya make the garden her reading spot?",choices:[{e:"🌸",l:"It was beautiful and peaceful",c:true},{e:"📚",l:"It had bookshelves",c:false},{e:"☀️",l:"It was sunny",c:false},{e:"🏠",l:"It was close to home",c:false}]},
+  "Finn and the Friendly Dragon":    {type:"WHY",q:"Why did the dragon become Finn's friend?",choices:[{e:"🥪",l:"Finn was kind and shared food",c:true},{e:"🐉",l:"Dragons love kids",c:false},{e:"🏔️",l:"They both hiked",c:false},{e:"🔥",l:"The dragon needed help",c:false}]},
+  "Cleo the Clever Crow":            {type:"WHY",q:"Why did Cleo drop pebbles in the water?",choices:[{e:"💧",l:"To make the water rise",c:true},{e:"🪨",l:"She was playing",c:false},{e:"🐦",l:"Birds do that",c:false},{e:"🌊",l:"She was thirsty for pebbles",c:false}]},
+  "Ben Goes Camping":                {type:"WHY",q:"Why did Ben feel brave at night?",choices:[{e:"⭐",l:"He looked at the stars",c:true},{e:"🔦",l:"He had a flashlight",c:false},{e:"🏕️",l:"The tent kept him safe",c:false},{e:"👨",l:"His dad was there",c:false}]},
+  "Rose and the Talking Parrot":     {type:"WHY",q:"Why did the parrot keep repeating Rose's words?",choices:[{e:"🦜",l:"Parrots learn by listening",c:true},{e:"🎵",l:"It liked the sounds",c:false},{e:"🏠",l:"It was bored",c:false},{e:"📚",l:"It was reading",c:false}]},
+  "Dino the Baby T-Rex":             {type:"WHY",q:"Why was Dino afraid at first?",choices:[{e:"🦕",l:"Everything was new and big",c:true},{e:"🌋",l:"The volcano erupted",c:false},{e:"🦖",l:"Another dinosaur roared",c:false},{e:"🌧️",l:"It was raining",c:false}]},
+  "Grace and the Giant Pumpkin":     {type:"WHY",q:"Why did Grace win the contest?",choices:[{e:"🎃",l:"She grew the biggest pumpkin",c:true},{e:"🍀",l:"She was lucky",c:false},{e:"👨‍🌾",l:"Her dad helped",c:false},{e:"🏆",l:"She was the oldest",c:false}]},
+  "Hugo and the Hot Air Balloon":    {type:"WHY",q:"Why did Hugo feel free in the balloon?",choices:[{e:"☁️",l:"He could see everything from up high",c:true},{e:"🌬️",l:"The wind was nice",c:false},{e:"🎈",l:"Balloons are fun",c:false},{e:"🏠",l:"He left his worries behind",c:false}]}
+};
+
+// ---- SEQUENCE data ----
+const SEQUENCE_EVENTS = {
+  "Leo Goes to the Park":            ["Leo went to the park","He played on the swings","He sat under a tree","He made a new friend"],
+  "Mia Bakes Cookies":               ["Mia mixed the dough","She added chocolate chips","She put them in the oven","She shared with Max"],
+  "Rex Finds a Bone":                ["Rex dug in the backyard","He found a shiny bone","Rex wagged his tail","He buried the bone again"],
+  "Sam Sees a Rainbow":              ["There was a big rainstorm","Sam looked out the window","He ran outside","He pointed and yelled Wow!"],
+  "Zara Visits the Zoo":             ["Zara went to the zoo with dad","She saw giraffes and lions","The elephant sprayed water","They ate ice cream"],
+  "Pip Flies a Kite":                ["Pip went to the hill","She held the kite string tightly","The kite went up in the sky","Pip laughed and danced"],
+  "Benny Builds a Robot":            ["Benny sat at his desk","He built a robot from cardboard","He gave it button eyes","The robot lit up and beeped"],
+  "Nina Finds a Puppy":              ["Nina walked home from school","She heard a tiny whimper","She found a fluffy puppy","Her mom said they could keep it"],
+  "Carlos and the Big Wave":         ["Carlos went to the beach","He splashed in the waves","A big wave knocked him down","He laughed and ran back in"],
+  "Luna the Space Cat":              ["Luna floated past the moon","She saw the moon up close","She touched it with her paw","She took a moon rock home"],
+  "Tomas Learns to Ride":            ["Tomas got a red bike","He kept falling down","His dad held the seat","Tomas rode all by himself"],
+  "Ella and the Magic Paintbrush":   ["Ella found a glowing paintbrush","She painted a butterfly","She painted a fish","She painted a rainbow"],
+  "Max and the Thunderstorm":        ["Thunder woke Max up","He hid under his blanket","Pepper jumped on the bed","Max felt safe and fell asleep"],
+  "Sofia Plants a Seed":             ["Sofia planted a tiny seed","She watered it every day","A green shoot poked out","The plant grew into a sunflower"],
+  "Jake and the Lost Shoe":          ["Jake woke up late","He looked everywhere for his shoe","His sister pointed to the dog basket","They found the shoe inside"],
+  "Lily Wins the Race":              ["Lily trained every day","She lined up at the starting line","The whistle blew","Lily crossed the finish line first"],
+  "Oscar the Octopus":               ["Oscar painted every fish","The fish threw him a party","Oscar hugged all his friends","He used all eight arms"],
+  "Maya and the Secret Garden":      ["Maya found a hidden door","She pushed it open","She saw roses and butterflies","She made it her reading spot"],
+  "Finn and the Friendly Dragon":    ["Finn heard a loud sneeze","He found a small dragon","Finn shared his sandwich","They hiked to the top together"],
+  "Cleo the Clever Crow":            ["Cleo was thirsty","The water was too low to reach","She dropped pebbles in the jug","The water rose and she drank"],
+  "Ben Goes Camping":                ["Ben and his family set up a tent","They sat around a campfire","They roasted marshmallows","Ben looked at the stars until he fell asleep"],
+  "Rose and the Talking Parrot":     ["Rose visited her aunts house","She met a parrot named Taco","Rose said hello and Taco repeated it","Taco learned to say Roses name"],
+  "Dino the Baby T-Rex":             ["Dino hatched from his egg","He stomped through the jungle","He found a pile of berries and ate them","He curled up under a fern to nap"],
+  "Grace and the Giant Pumpkin":     ["Grace planted a pumpkin in her garden","She watered it every day","The pumpkin grew bigger than Grace","Grace won first prize at the harvest festival"],
+  "Hugo and the Hot Air Balloon":    ["Hugo climbed into a hot air balloon","The balloon lifted off the ground","He floated over his whole town","Hugo waved at the tiny people below"],
+  "Ivy and the Ice Cream Truck":     ["Ivy heard the ice cream truck jingle","She ran inside to get her coins","She sprinted back out but the truck was leaving","Ivy waved and yelled Wait and the driver stopped"],
+  "Tom and the Treasure Map":        ["Tom found an old treasure map in the attic","He followed the path to a big oak tree","He dug under the tree","He found a tin box with old coins and a marble"],
+  "Penny the Brave Mouse":           ["Penny smelled something delicious from the kitchen","She crept past the sleeping cat","She squeezed under the fridge","She found a huge piece of cheese"],
+  "Alex Learns to Swim":             ["Alex was nervous about swimming lessons","Miss Flores showed him how to kick","After six lessons Alex swam the whole pool","Alex jumped up and cheered"],
+  "Bella and the Baby Deer":         ["Bella went on a nature walk with her class","She spotted a baby deer in the woods","She held very still so she would not scare it","The deer blinked slowly then disappeared"],
+  "Nora and the Noisy Neighbor":     ["Nora heard loud music from next door","She knocked on the neighbor door","She met Mr Ling who was learning trumpet","Mr Ling played her a whole song"],
+  "Eddie and the Electric Eel":      ["Eddie visited the aquarium on a field trip","He pressed his nose to every tank","At the last tank he saw an electric eel","His teacher had to pull him away"],
+  "Lila and the Lemon Tree":         ["Lila had a lemon tree with too many lemons","She set up a lemonade stand on the corner","She squeezed lemons all morning","She sold forty cups and bought a book"],
+  "Remy and the Runaway Hamster":    ["Remy opened the cage to give Nugget water","Nugget jumped out and ran under the couch","Remy got sunflower seeds and made a trail","Nugget followed the trail back into the cage"],
+  "Yasmin and the Yak":              ["Yasmin went on a mountain trek","They met a big yak blocking the trail","Her dad held out a carrot","The yak stepped aside to eat it"],
+  "Kai and the Paper Crane":         ["Kai learned to fold cranes from his grandmother","His first crane was crumpled and lopsided","He tried again until he made a perfect crane","He put it on his windowsill and started another"],
+  "Daisy and the Dinosaur Egg":      ["Daisy was digging in the backyard","Her shovel hit something hard","She carried it inside and put it under a lamp","A little green lizard hatched by morning"],
+  "Marco and the Map of Stars":      ["Marco and his dad set up a telescope","Marco looked through the lens and gasped","His dad showed him the Big Dipper","Marco drew everything he saw in a notebook"],
+  "Priya and the Perfect Pancakes":  ["Priya decided to make pancakes as a surprise","She mixed the batter and heated the pan","The first pancake burned a little","Her family woke up to the smell and came running"],
+  "Victor and the Volcano Project":  ["Victor built a papier-mache volcano","He worked on it every night for two weeks","He poured baking soda and vinegar inside","The volcano erupted with pink foam"],
+  "Hana and the Hiccuping Horse":    ["Hana went to a riding school","She met a horse named Clover","Every time Hana said hello Clover hiccupped","Hana rode Clover around the paddock three times"],
+  "Otto and the Old Radio":          ["Otto found an old dusty radio in the attic","He cleaned it up and plugged it in","A jazz song came on and Otto danced","His grandma came up and they danced together"],
+  "Zoe and the Zipline":             ["Zoe stood on the high platform","She closed her eyes and jumped","The wind rushed past her face","Zoe ran straight back up to do it again"],
+  "Leo and the Library Card":        ["Leo got his first library card on his birthday","He walked up and down the aisles for twenty minutes","He chose a book about deep sea creatures","He read the whole book that afternoon"],
+  "Amara and the Ant Army":          ["Amara was eating a sandwich in the garden","She noticed a long line of ants carrying crumbs","She followed the line to a crack in the wall","She left bread as a gift and the ants took it in seconds"],
+  "Felix and the Frog Choir":        ["Felix could not sleep because of loud croaking","He looked out and saw twenty frogs at the pond","He grabbed his recorder and played along","The frogs croaked louder and Felix played louder too"],
+  "Isla and the Invisible Ink":      ["Isla wrote a secret message using lemon juice","The paper looked blank when it dried","She told her friend to hold it near a lamp","The words appeared in brown letters"],
+  "Cole and the Colorful Chameleon": ["Cole visited a reptile show at the museum","A keeper placed a chameleon on his arm","The chameleon slowly turned orange","Cole learned that chameleons change color to communicate"],
+  "Milo and the Monarch Butterfly":  ["Milo found a butterfly on his windowsill","He looked it up and learned about monarchs","He made a dish of sugar water nearby","The butterfly drank from it and flew away"],
+  "Ada and the Art Contest":         ["Ada entered a painting contest at the library","She painted her neighborhood at night","She used a toothbrush to flick star dots","Ada won the under-ten category"],
+  "Theo and the Talking Fish":       ["Theo was fishing at the lake with his grandpa","He caught a golden fish","The fish offered him one wish","Theo wished his grandpa would always be healthy"]
+};
+
+// Merge CAUSE, WHY (author type from WHY_ADDITIONS), and inferential WHY into STORIES
 STORIES.forEach(s => {
   if (CAUSE_ADDITIONS[s.title]) s.questions.push(CAUSE_ADDITIONS[s.title]);
   if (WHY_ADDITIONS[s.title])   s.questions.push(WHY_ADDITIONS[s.title]);
+  if (INFERENTIAL_WHY[s.title]) s.questions.push(INFERENTIAL_WHY[s.title]);
+  if (SEQUENCE_EVENTS[s.title]) s.sequenceEvents = SEQUENCE_EVENTS[s.title];
 });
 
 // ---- Init ----
