@@ -53,6 +53,7 @@
   .q-dot.done { background: #06D6A0; }
   .q-dot.current { background: #0D9488; }
   .scene-svg { width: 100%; max-width: 340px; margin: 0 auto 12px; display: block; border-radius: 16px; border: 3px solid #D1FAE5; }
+  .scene-img { background: #fff; object-fit: contain; max-height: 240px; }
   .progress-bar-bg { width: 100%; max-width: 340px; margin: 0 auto 24px; height: 18px; background: #DDE3F0; border-radius: 9px; overflow: hidden; }
   .progress-bar-fill { height: 100%; background: #06D6A0; border-radius: 9px; transition: width 1s ease-out; }
   .screen { display: none; }
@@ -301,17 +302,17 @@ const PRONOUN_SCENES = [
   {id:"p1",subject:"girl",action:"running",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'run')}</svg>`,correct:"She is running.",wrong1:"He is running.",wrong2:"She are running."},
   {id:"p2",subject:"boy",action:"jumping",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${boyFigure(140,80,'jump')}</svg>`,correct:"He is jumping.",wrong1:"She is jumping.",wrong2:"He are jumping."},
   {id:"p3",subject:"two kids",action:"playing",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${twoFigures('jump')}<circle cx="140" cy="135" r="10" fill="#FF9F1C"/></svg>`,correct:"They are playing.",wrong1:"He is playing.",wrong2:"They is playing."},
-  {id:"p4",subject:"girl",action:"reading",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'read')}</svg>`,correct:"She is reading.",wrong1:"He is reading.",wrong2:"She are reading."},
-  {id:"p5",subject:"boy",action:"eating",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${boyFigure(140,90,'eat')}</svg>`,correct:"He is eating.",wrong1:"She is eating.",wrong2:"He are eating."},
+  {id:"p4",img:"pronoun_girl_reading.jpg",subject:"girl",action:"reading",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'read')}</svg>`,correct:"She is reading.",wrong1:"He is reading.",wrong2:"She are reading."},
+  {id:"p5",img:"pronoun_boy_eating.jpg",subject:"boy",action:"eating",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${boyFigure(140,90,'eat')}</svg>`,correct:"He is eating.",wrong1:"She is eating.",wrong2:"He are eating."},
   {id:"p6",subject:"two kids",action:"drawing",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${twoFigures('write')}<rect x="100" y="120" width="80" height="8" rx="2" fill="#F0F0F0"/></svg>`,correct:"They are drawing.",wrong1:"She is drawing.",wrong2:"They was drawing."},
-  {id:"p7",subject:"girl",action:"swimming",svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#E3F4FF"/><rect y="100" width="280" height="60" fill="#29B6F6"/>${girlFigure(140,100,'swim')}</svg>`,correct:"She is swimming.",wrong1:"He is swimming.",wrong2:"She are swimming."},
-  {id:"p8",subject:"boy",action:"sleeping",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}<rect x="60" y="100" width="160" height="20" rx="8" fill="#BDBDBD"/>${boyFigure(140,92,'sleep')}<text x="170" y="80" font-size="16" fill="#9B59B6">z z z</text></svg>`,correct:"He is sleeping.",wrong1:"She is sleeping.",wrong2:"He are sleeping."},
+  {id:"p7",img:"pronoun_girl_swimming.jpg",subject:"girl",action:"swimming",svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#E3F4FF"/><rect y="100" width="280" height="60" fill="#29B6F6"/>${girlFigure(140,100,'swim')}</svg>`,correct:"She is swimming.",wrong1:"He is swimming.",wrong2:"She are swimming."},
+  {id:"p8",img:"pronoun_boy_sleeping.jpg",subject:"boy",action:"sleeping",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}<rect x="60" y="100" width="160" height="20" rx="8" fill="#BDBDBD"/>${boyFigure(140,92,'sleep')}<text x="170" y="80" font-size="16" fill="#9B59B6">z z z</text></svg>`,correct:"He is sleeping.",wrong1:"She is sleeping.",wrong2:"He are sleeping."},
   {id:"p9",subject:"two kids",action:"running",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(90,90,'run')}${boyFigure(190,90,'run')}</svg>`,correct:"They are running.",wrong1:"He is running.",wrong2:"They is running."},
-  {id:"p10",subject:"girl",action:"dancing",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'dance')}<text x="168" y="68" font-size="14" fill="#9B59B6">♪♫</text></svg>`,correct:"She is dancing.",wrong1:"He is dancing.",wrong2:"She are dancing."},
+  {id:"p10",img:"pronoun_girl_dancing.jpg",subject:"girl",action:"dancing",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'dance')}<text x="168" y="68" font-size="14" fill="#9B59B6">♪♫</text></svg>`,correct:"She is dancing.",wrong1:"He is dancing.",wrong2:"She are dancing."},
   {id:"p11",subject:"boy",action:"climbing",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${boyFigure(140,90,'climb')}</svg>`,correct:"He is climbing.",wrong1:"She is climbing.",wrong2:"He are climbing."},
   {id:"p12",subject:"two kids",action:"eating",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(90,90,'eat')}${boyFigure(190,90,'eat')}<circle cx="55" cy="98" r="7" fill="#FF6B6B"/><circle cx="225" cy="98" r="7" fill="#FF6B6B"/></svg>`,correct:"They are eating.",wrong1:"She is eating.",wrong2:"They was eating."},
-  {id:"p13",subject:"girl",action:"painting",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'paint')}</svg>`,correct:"She is painting.",wrong1:"He is painting.",wrong2:"She are painting."},
-  {id:"p14",subject:"boy",action:"kicking a ball",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${boyFigure(130,90,'kick')}</svg>`,correct:"He is kicking.",wrong1:"She is kicking.",wrong2:"He are kicking."},
+  {id:"p13",img:"pronoun_girl_painting.jpg",subject:"girl",action:"painting",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'paint')}</svg>`,correct:"She is painting.",wrong1:"He is painting.",wrong2:"She are painting."},
+  {id:"p14",img:"pronoun_boy_kicking.jpg",subject:"boy",action:"kicking a ball",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${boyFigure(130,90,'kick')}</svg>`,correct:"He is kicking.",wrong1:"She is kicking.",wrong2:"He are kicking."},
   {id:"p15",subject:"two kids",action:"laughing",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(90,90,'wave')}${boyFigure(190,90,'wave')}<text x="70" y="54" font-size="14" fill="#FF9F1C">ha ha!</text><text x="170" y="54" font-size="14" fill="#FF9F1C">ha!</text></svg>`,correct:"They are laughing.",wrong1:"He is laughing.",wrong2:"They is laughing."},
   {id:"p16",subject:"girl",action:"waving",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${girlFigure(140,90,'wave')}</svg>`,correct:"She is waving.",wrong1:"He is waving.",wrong2:"She are waving."},
   {id:"p17",subject:"boy",action:"writing",svg:`<svg viewBox="0 0 280 160" class="scene-svg">${skyGrass()}${boyFigure(140,90,'write')}</svg>`,correct:"He is writing.",wrong1:"She is writing.",wrong2:"He are writing."},
@@ -322,43 +323,43 @@ const PRONOUN_SCENES = [
 
 // ── PREPOSITION SVGs ──────────────────────────────────────────
 const PREP_SCENES = [
-  {id:"pp1",obj:"ball",prep:"under",question:"Where is the ball?",
+  {id:"pp1",img:"prep_ball_under_table.jpg",obj:"ball",prep:"under",question:"Where is the ball?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><rect x="40" y="80" width="200" height="12" rx="4" fill="#795548"/><rect x="40" y="92" width="8" height="50" rx="2" fill="#795548"/><rect x="232" y="92" width="8" height="50" rx="2" fill="#795548"/><circle cx="140" cy="110" r="18" fill="#EF476F"/></svg>`,
    correct:"The ball is under the table.",wrong:["The ball is on the table.","The ball is in the table.","The ball is next to the table."]},
-  {id:"pp2",obj:"cat",prep:"on",question:"Where is the cat?",
+  {id:"pp2",img:"prep_cat_on_bed.jpg",obj:"cat",prep:"on",question:"Where is the cat?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><rect x="50" y="80" width="180" height="16" rx="6" fill="#BDBDBD"/><rect x="50" y="96" width="180" height="40" rx="4" fill="#E0E0E0"/><ellipse cx="140" cy="70" rx="22" ry="16" fill="#EF9A9A"/><ellipse cx="140" cy="62" rx="15" ry="12" fill="#FFCDD2"/><polygon points="130,54 126,42 134,50" fill="#EF9A9A"/><polygon points="150,54 154,42 146,50" fill="#EF9A9A"/></svg>`,
    correct:"The cat is on the bed.",wrong:["The cat is under the bed.","The cat is in the bed.","The cat is next to the bed."]},
-  {id:"pp3",obj:"dog",prep:"in",question:"Where is the dog?",
+  {id:"pp3",img:"prep_dog_in_box.jpg",obj:"dog",prep:"in",question:"Where is the dog?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><rect x="80" y="50" width="120" height="90" rx="6" fill="#A1887F" stroke="#795548" stroke-width="3"/><ellipse cx="140" cy="90" rx="30" ry="22" fill="#D4A056"/><ellipse cx="140" cy="80" rx="18" ry="14" fill="#D4A056"/><ellipse cx="128" cy="70" rx="9" ry="12" fill="#C49040"/><ellipse cx="152" cy="70" rx="9" ry="12" fill="#C49040"/></svg>`,
    correct:"The dog is in the box.",wrong:["The dog is on the box.","The dog is under the box.","The dog is next to the box."]},
-  {id:"pp4",obj:"book",prep:"next to",question:"Where is the book?",
+  {id:"pp4",img:"prep_book_next_to_lamp.jpg",obj:"book",prep:"next to",question:"Where is the book?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><rect x="150" y="60" width="20" height="70" rx="4" fill="#BDBDBD"/><circle cx="160" cy="50" r="14" fill="#FFD166"/><rect x="70" y="90" width="50" height="38" rx="4" fill="#42A5F5"/><rect x="70" y="90" width="6" height="38" fill="#1565C0"/></svg>`,
    correct:"The book is next to the lamp.",wrong:["The book is on the lamp.","The book is under the lamp.","The book is in the lamp."]},
-  {id:"pp5",obj:"apple",prep:"on",question:"Where is the apple?",
+  {id:"pp5",img:"prep_apple_on_chair.jpg",obj:"apple",prep:"on",question:"Where is the apple?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><rect x="90" y="80" width="100" height="60" rx="6" fill="#8D6E63"/><rect x="90" y="74" width="100" height="10" rx="4" fill="#6D4C41"/><rect x="90" y="84" width="10" height="50" rx="2" fill="#6D4C41"/><rect x="180" y="84" width="10" height="50" rx="2" fill="#6D4C41"/><circle cx="140" cy="66" r="18" fill="#E53935"/><rect x="139" y="44" width="4" height="12" rx="2" fill="#795548"/></svg>`,
    correct:"The apple is on the chair.",wrong:["The apple is under the chair.","The apple is next to the chair.","The apple is in the chair."]},
-  {id:"pp6",obj:"frog",prep:"under",question:"Where is the frog?",
+  {id:"pp6",img:"prep_frog_under_rock.jpg",obj:"frog",prep:"under",question:"Where is the frog?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#E3F4FF"/><rect y="120" width="280" height="40" fill="#7BC67E"/><ellipse cx="140" cy="110" rx="50" ry="30" fill="#9E9E9E"/><ellipse cx="140" cy="126" rx="20" ry="12" fill="#66BB6A"/><ellipse cx="130" cy="118" rx="7" ry="5" fill="#81C784"/><ellipse cx="150" cy="118" rx="7" ry="5" fill="#81C784"/></svg>`,
    correct:"The frog is under the rock.",wrong:["The frog is on the rock.","The frog is in the rock.","The frog is next to the rock."]},
-  {id:"pp7",obj:"fish",prep:"in",question:"Where is the fish?",
+  {id:"pp7",img:"prep_fish_in_bowl.jpg",obj:"fish",prep:"in",question:"Where is the fish?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><ellipse cx="140" cy="110" rx="60" ry="40" fill="#B3E5FC" stroke="#4FC3F7" stroke-width="3"/><ellipse cx="140" cy="100" rx="20" ry="10" fill="#FF7043"/><polygon points="160,100 175,90 175,110" fill="#E64A19"/></svg>`,
    correct:"The fish is in the bowl.",wrong:["The fish is on the bowl.","The fish is under the bowl.","The fish is next to the bowl."]},
-  {id:"pp8",obj:"shoe",prep:"under",question:"Where is the shoe?",
+  {id:"pp8",img:"prep_shoe_under_bed.jpg",obj:"shoe",prep:"under",question:"Where is the shoe?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><rect x="50" y="72" width="180" height="16" rx="6" fill="#BDBDBD"/><rect x="50" y="88" width="180" height="40" rx="4" fill="#E0E0E0"/><path d="M100,100 L100,125 L160,125 L165,112 L140,100 Z" fill="#795548"/><ellipse cx="108" cy="100" rx="12" ry="8" fill="#A1887F"/></svg>`,
    correct:"The shoe is under the bed.",wrong:["The shoe is on the bed.","The shoe is in the bed.","The shoe is next to the bed."]},
-  {id:"pp9",obj:"bird",prep:"on",question:"Where is the bird?",
+  {id:"pp9",img:"prep_bird_on_fence.jpg",obj:"bird",prep:"on",question:"Where is the bird?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#E3F4FF"/><rect y="120" width="280" height="40" fill="#7BC67E"/><rect x="40" y="30" width="200" height="8" rx="3" fill="#795548"/><rect x="60" y="38" width="8" height="90" rx="3" fill="#795548"/><rect x="212" y="38" width="8" height="90" rx="3" fill="#795548"/><ellipse cx="140" cy="22" rx="14" ry="10" fill="#FFCC80"/><polygon points="140,12 152,22 128,22" fill="#8BC34A"/><circle cx="144" cy="18" r="3" fill="#212121"/></svg>`,
    correct:"The bird is on the fence.",wrong:["The bird is under the fence.","The bird is in the fence.","The bird is next to the fence."]},
-  {id:"pp10",obj:"toy",prep:"in",question:"Where is the toy?",
+  {id:"pp10",img:"prep_toy_in_bag.jpg",obj:"toy",prep:"in",question:"Where is the toy?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><path d="M70,60 L80,130 L200,130 L210,60 Z" fill="#FFD166" stroke="#F9A825" stroke-width="3"/><rect x="80" y="56" width="120" height="12" rx="4" fill="#F9A825"/><circle cx="140" cy="95" r="20" fill="#EF476F"/><rect x="130" y="82" width="20" height="6" rx="2" fill="#FF9F1C"/></svg>`,
    correct:"The toy is in the bag.",wrong:["The toy is on the bag.","The toy is under the bag.","The toy is next to the bag."]},
-  {id:"pp11",obj:"cup",prep:"next to",question:"Where is the cup?",
+  {id:"pp11",img:"prep_cup_next_to_plate.jpg",obj:"cup",prep:"next to",question:"Where is the cup?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><ellipse cx="150" cy="110" rx="50" ry="6" fill="#E0E0E0"/><rect x="100" y="100" width="100" height="8" rx="3" fill="#BDBDBD"/><path d="M72,60 L68,108 L108,108 L104,60 Z" fill="#42A5F5"/><rect x="108" y="80" width="12" height="5" rx="2" fill="#1976D2"/></svg>`,
    correct:"The cup is next to the plate.",wrong:["The cup is on the plate.","The cup is under the plate.","The cup is in the plate."]},
-  {id:"pp12",obj:"mouse",prep:"under",question:"Where is the mouse?",
+  {id:"pp12",img:"prep_mouse_under_chair.jpg",obj:"mouse",prep:"under",question:"Where is the mouse?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><rect x="90" y="74" width="100" height="60" rx="6" fill="#8D6E63"/><rect x="90" y="68" width="100" height="10" rx="4" fill="#6D4C41"/><rect x="90" y="78" width="10" height="50" rx="2" fill="#6D4C41"/><rect x="180" y="78" width="10" height="50" rx="2" fill="#6D4C41"/><ellipse cx="140" cy="112" rx="18" ry="12" fill="#BDBDBD"/><ellipse cx="140" cy="104" rx="12" ry="10" fill="#CFD8DC"/><ellipse cx="132" cy="98" rx="7" ry="9" fill="#BDBDBD"/><ellipse cx="148" cy="98" rx="7" ry="9" fill="#BDBDBD"/></svg>`,
    correct:"The mouse is under the chair.",wrong:["The mouse is on the chair.","The mouse is in the chair.","The mouse is next to the chair."]},
-  {id:"pp13",obj:"flower",prep:"in",question:"Where is the flower?",
+  {id:"pp13",img:"prep_flower_in_pot.jpg",obj:"flower",prep:"in",question:"Where is the flower?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><ellipse cx="140" cy="125" rx="40" ry="28" fill="#795548"/><ellipse cx="140" cy="118" rx="35" ry="22" fill="#8D6E63"/><rect x="136" y="70" width="8" height="50" rx="4" fill="#66BB6A"/><circle cx="140" cy="64" r="18" fill="#FFD166"/><circle cx="140" cy="64" r="10" fill="#FF9F1C"/></svg>`,
    correct:"The flower is in the pot.",wrong:["The flower is on the pot.","The flower is under the pot.","The flower is next to the pot."]},
   {id:"pp14",obj:"ball",prep:"on",question:"Where is the ball?",
@@ -367,7 +368,7 @@ const PREP_SCENES = [
   {id:"pp15",obj:"cat",prep:"next to",question:"Where is the cat?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#E3F4FF"/><rect y="120" width="280" height="40" fill="#7BC67E"/><ellipse cx="185" cy="110" rx="24" ry="14" fill="#D4A056"/><ellipse cx="185" cy="100" rx="16" ry="12" fill="#D4A056"/><ellipse cx="175" cy="92" rx="8" ry="11" fill="#C49040"/><ellipse cx="195" cy="92" rx="8" ry="11" fill="#C49040"/><ellipse cx="95" cy="112" rx="22" ry="14" fill="#EF9A9A"/><ellipse cx="95" cy="102" rx="14" ry="11" fill="#FFCDD2"/><polygon points="86,95 82,84 90,92" fill="#EF9A9A"/><polygon points="104,95 108,84 100,92" fill="#EF9A9A"/></svg>`,
    correct:"The cat is next to the dog.",wrong:["The cat is on the dog.","The cat is under the dog.","The cat is in the dog."]},
-  {id:"pp16",obj:"cookie",prep:"in",question:"Where is the cookie?",
+  {id:"pp16",img:"prep_cookie_in_jar.jpg",obj:"cookie",prep:"in",question:"Where is the cookie?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#FFF8F0"/><ellipse cx="140" cy="105" rx="45" ry="30" fill="#795548"/><ellipse cx="140" cy="99" rx="40" ry="25" fill="#A1887F"/><circle cx="140" cy="110" rx="20" fill="#FF9F1C"/><rect x="118" y="104" width="44" height="14" rx="5" fill="#8D6E63"/><circle cx="140" cy="105" r="16" fill="#FFD166"/></svg>`,
    correct:"The cookie is in the jar.",wrong:["The cookie is on the jar.","The cookie is under the jar.","The cookie is next to the jar."]},
   {id:"pp17",obj:"sock",prep:"under",question:"Where is the sock?",
@@ -379,7 +380,7 @@ const PREP_SCENES = [
   {id:"pp19",obj:"frog",prep:"next to",question:"Where is the frog?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#E3F4FF"/><rect y="120" width="280" height="40" fill="#7BC67E"/><ellipse cx="170" cy="118" rx="60" ry="16" fill="#29B6F6" opacity="0.7"/><ellipse cx="80" cy="116" rx="18" ry="12" fill="#66BB6A"/><ellipse cx="80" cy="108" rx="13" ry="10" fill="#81C784"/><ellipse cx="71" cy="102" rx="7" ry="9" fill="#66BB6A"/><ellipse cx="89" cy="102" rx="7" ry="9" fill="#66BB6A"/><circle cx="76" cy="105" r="3" fill="#212121"/><circle cx="84" cy="105" r="3" fill="#212121"/></svg>`,
    correct:"The frog is next to the pond.",wrong:["The frog is on the pond.","The frog is under the pond.","The frog is in the pond."]},
-  {id:"pp20",obj:"bear",prep:"in",question:"Where is the bear?",
+  {id:"pp20",img:"prep_bear_in_cave.jpg",obj:"bear",prep:"in",question:"Where is the bear?",
    svg:`<svg viewBox="0 0 280 160" class="scene-svg"><rect width="280" height="160" fill="#E3F4FF"/><rect y="100" width="280" height="60" fill="#7BC67E"/><path d="M60,100 Q80,40 140,30 Q200,40 220,100 Z" fill="#9E9E9E"/><ellipse cx="140" cy="110" rx="40" ry="28" fill="#A1887F"/><ellipse cx="140" cy="100" rx="24" ry="18" fill="#BDBDBD"/><ellipse cx="124" cy="88" rx="12" ry="14" fill="#9E9E9E"/><ellipse cx="156" cy="88" rx="12" ry="14" fill="#9E9E9E"/></svg>`,
    correct:"The bear is in the cave.",wrong:["The bear is on the cave.","The bear is under the cave.","The bear is next to the cave."]}
 ];
@@ -579,8 +580,19 @@ function renderQuestion() {
   badge.textContent = modeLabels[q.mode] || q.mode.toUpperCase();
   badge.className = 'type-badge badge-' + (modeClasses[q.mode] || 'PRONOUNS');
 
-  // Scene
-  document.getElementById('scene-container').innerHTML = q.svg || '';
+  // Scene — real illustration when we have one, SVG stick-figure fallback otherwise
+  const sceneEl = document.getElementById('scene-container');
+  if (q.img) {
+    sceneEl.innerHTML = '';
+    const im = new Image();
+    im.className = 'scene-svg scene-img';
+    im.alt = '';
+    im.onerror = function () { sceneEl.innerHTML = q.svg || ''; };
+    im.src = '../Pictures/web/' + q.img;
+    sceneEl.appendChild(im);
+  } else {
+    sceneEl.innerHTML = q.svg || '';
+  }
   document.getElementById('q-text').textContent = q.question || q.scenario || 'What is happening in this picture?';
   document.getElementById('feedback').style.display = 'none';
   document.getElementById('next-btn').style.display = 'none';
