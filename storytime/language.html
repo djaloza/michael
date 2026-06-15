@@ -449,41 +449,58 @@ const FUNC_SCENARIOS = [
 ];
 
 // ── TURN TAKING SVGs ──────────────────────────────────────────
-function boardGame() {
-  return `<rect width="280" height="160" fill="#ECFDF5"/><rect x="30" y="30" width="220" height="120" rx="12" fill="#FFFDE7" stroke="#FFD166" stroke-width="3"/><circle cx="80" cy="80" r="20" fill="#4A90D9" opacity="0.2"/><circle cx="140" cy="80" r="20" fill="#E74C3C" opacity="0.2"/><circle cx="200" cy="80" r="20" fill="#F1C40F" opacity="0.2"/><text x="67" y="85" font-size="13" fill="#4A90D9" font-weight="bold">M</text><text x="127" y="85" font-size="13" fill="#E74C3C" font-weight="bold">A</text><text x="187" y="85" font-size="13" fill="#DAA520" font-weight="bold">S</text>`;
+// Three clear kids in a row. The one whose turn it is gets a yellow spotlight,
+// a raised waving hand, and a big arrow + star above — so it's obvious WHO.
+function turnKid(cx, name, color, active) {
+  const cy = 92, hy = cy - 28;
+  let s = '';
+  if (active) s += `<ellipse cx="${cx}" cy="${cy+34}" rx="40" ry="50" fill="#FFE066" opacity="0.55"/>`;
+  // hair + head + simple smiley face
+  s += `<path d="M ${cx-14} ${hy-2} Q ${cx} ${hy-24} ${cx+14} ${hy-2} Z" fill="#6D4C41"/>`;
+  s += `<circle cx="${cx}" cy="${hy}" r="13" fill="#FFDDB3"/>`;
+  s += `<circle cx="${cx-5}" cy="${hy-1}" r="2" fill="#333"/><circle cx="${cx+5}" cy="${hy-1}" r="2" fill="#333"/>`;
+  s += `<path d="M ${cx-5} ${hy+5} Q ${cx} ${hy+10} ${cx+5} ${hy+5}" stroke="#333" stroke-width="1.6" fill="none"/>`;
+  // body + legs
+  s += `<rect x="${cx-13}" y="${hy+12}" width="26" height="28" rx="6" fill="${color}"/>`;
+  s += `<line x1="${cx-5}" y1="${hy+40}" x2="${cx-8}" y2="${hy+58}" stroke="#333" stroke-width="3"/>`;
+  s += `<line x1="${cx+5}" y1="${hy+40}" x2="${cx+8}" y2="${hy+58}" stroke="#333" stroke-width="3"/>`;
+  if (active) {
+    // raised waving hand (left arm up), other arm down
+    s += `<line x1="${cx-9}" y1="${hy+18}" x2="${cx-22}" y2="${hy-6}" stroke="#333" stroke-width="3"/>`;
+    s += `<circle cx="${cx-23}" cy="${hy-8}" r="5" fill="#FFDDB3"/>`;
+    s += `<line x1="${cx+9}" y1="${hy+18}" x2="${cx+18}" y2="${hy+32}" stroke="#333" stroke-width="3"/>`;
+    // big arrow + star burst above
+    s += `<text x="${cx-12}" y="${hy-30}" font-size="30" fill="#E53935">⬇</text>`;
+    s += `<text x="${cx+12}" y="${hy-34}" font-size="22" fill="#F5A623">⭐</text>`;
+  } else {
+    s += `<line x1="${cx-9}" y1="${hy+18}" x2="${cx-15}" y2="${hy+36}" stroke="#333" stroke-width="3"/>`;
+    s += `<line x1="${cx+9}" y1="${hy+18}" x2="${cx+15}" y2="${hy+36}" stroke="#333" stroke-width="3"/>`;
+  }
+  // name label (bold, colored, under the kid)
+  s += `<text x="${cx}" y="${cy+74}" font-size="13" fill="${color}" font-weight="bold" text-anchor="middle">${name}</text>`;
+  return s;
+}
+function buildTurn(activeIdx) {
+  const kids = [['Michael','#4A90D9'],['Alex','#E53935'],['Sam','#2E9E5B']];
+  const xs = [62, 140, 218];
+  let s = `<svg viewBox="0 0 280 175" class="scene-svg"><rect width="280" height="175" fill="#F0F9FF"/>`;
+  s += `<rect x="14" y="148" width="252" height="10" rx="4" fill="#C9A66B"/>`; // table they sit at
+  for (let i = 0; i < 3; i++) s += turnKid(xs[i], kids[i][0], kids[i][1], i === activeIdx);
+  s += `</svg>`;
+  return s;
 }
 
 const TURN_SCENES = [
-  {id:"t1",scenario:"Arrow points to Alex",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<text x="112" y="120" font-size="22" fill="#E74C3C">→</text><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Alex's turn!",wrong1:"It's Michael's turn!",wrong2:"It's Sam's turn!"},
-  {id:"t2",scenario:"Arrow points to Michael",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<text x="52" y="120" font-size="22" fill="#4A90D9">→</text><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Michael's turn!",wrong1:"It's Alex's turn!",wrong2:"Everyone's turn!"},
-  {id:"t3",scenario:"Dice lands near Sam",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<rect x="188" y="108" width="22" height="22" rx="4" fill="#F1C40F" stroke="#DAA520" stroke-width="2"/><circle cx="194" cy="114" r="2" fill="white"/><circle cx="204" cy="114" r="2" fill="white"/><circle cx="199" cy="120" r="2" fill="white"/><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Sam's turn!",wrong1:"It's Alex's turn!",wrong2:"It's Michael's turn!"},
-  {id:"t4",scenario:"Game piece moves to Alex's spot",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<circle cx="140" cy="108" r="10" fill="#E74C3C"/><line x1="125" y1="100" x2="140" y2="108" stroke="#E74C3C" stroke-width="2" stroke-dasharray="4"/><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Alex's turn!",wrong1:"It's Sam's turn!",wrong2:"It's Michael's turn!"},
-  {id:"t5",scenario:"Timer rings near Michael",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<circle cx="80" cy="120" r="14" fill="#4A90D9" opacity="0.7"/><text x="74" y="125" font-size="12" fill="white">⏰</text><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Michael's turn!",wrong1:"It's Sam's turn!",wrong2:"It's Alex's turn!"},
-  {id:"t6",scenario:"Arrow points to Sam",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<text x="172" y="120" font-size="22" fill="#DAA520">→</text><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Sam's turn!",wrong1:"It's Michael's turn!",wrong2:"It's Alex's turn!"},
-  {id:"t7",scenario:"Card flipped over to Alex",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<rect x="120" y="105" width="30" height="22" rx="4" fill="#E74C3C"/><text x="127" y="121" font-size="12" fill="white">★</text><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Alex's turn!",wrong1:"It's Michael's turn!",wrong2:"It's Sam's turn!"},
-  {id:"t8",scenario:"Spinner points to Michael",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<circle cx="80" cy="115" r="18" fill="#E8EEF8" stroke="#BDBDBD" stroke-width="2"/><line x1="80" y1="115" x2="62" y2="107" stroke="#4A90D9" stroke-width="3" stroke-linecap="round"/><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Michael's turn!",wrong1:"It's Alex's turn!",wrong2:"It's Sam's turn!"},
-  {id:"t9",scenario:"Arrow again to Sam",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<text x="173" y="118" font-size="20" fill="#DAA520">⬆</text><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Sam's turn!",wrong1:"It's Alex's turn!",wrong2:"It's Michael's turn!"},
-  {id:"t10",scenario:"Dice near Alex",
-   svg:`<svg viewBox="0 0 280 160" class="scene-svg">${boardGame()}<rect x="128" y="108" width="22" height="22" rx="4" fill="#E74C3C" stroke="#C0392B" stroke-width="2"/><circle cx="134" cy="114" r="2" fill="white"/><circle cx="144" cy="114" r="2" fill="white"/><circle cx="139" cy="120" r="2" fill="white"/><text x="82" y="148" font-size="10" fill="#4A90D9">Michael</text><text x="120" y="148" font-size="10" fill="#E74C3C">Alex</text><text x="178" y="148" font-size="10" fill="#DAA520">Sam</text></svg>`,
-   correct:"It's Alex's turn!",wrong1:"It's Sam's turn!",wrong2:"It's Michael's turn!"}
+  {id:"t1", scenario:"Whose turn is it?", svg:buildTurn(1), correct:"It's Alex's turn!",   wrong1:"It's Michael's turn!", wrong2:"It's Sam's turn!"},
+  {id:"t2", scenario:"Whose turn is it?", svg:buildTurn(0), correct:"It's Michael's turn!", wrong1:"It's Alex's turn!",    wrong2:"It's Sam's turn!"},
+  {id:"t3", scenario:"Whose turn is it?", svg:buildTurn(2), correct:"It's Sam's turn!",     wrong1:"It's Alex's turn!",    wrong2:"It's Michael's turn!"},
+  {id:"t4", scenario:"Whose turn is it?", svg:buildTurn(1), correct:"It's Alex's turn!",   wrong1:"It's Sam's turn!",     wrong2:"It's Michael's turn!"},
+  {id:"t5", scenario:"Whose turn is it?", svg:buildTurn(0), correct:"It's Michael's turn!", wrong1:"It's Sam's turn!",     wrong2:"It's Alex's turn!"},
+  {id:"t6", scenario:"Whose turn is it?", svg:buildTurn(2), correct:"It's Sam's turn!",     wrong1:"It's Michael's turn!", wrong2:"It's Alex's turn!"},
+  {id:"t7", scenario:"Whose turn is it?", svg:buildTurn(1), correct:"It's Alex's turn!",   wrong1:"It's Michael's turn!", wrong2:"It's Sam's turn!"},
+  {id:"t8", scenario:"Whose turn is it?", svg:buildTurn(0), correct:"It's Michael's turn!", wrong1:"It's Alex's turn!",    wrong2:"It's Sam's turn!"},
+  {id:"t9", scenario:"Whose turn is it?", svg:buildTurn(2), correct:"It's Sam's turn!",     wrong1:"It's Alex's turn!",    wrong2:"It's Michael's turn!"},
+  {id:"t10",scenario:"Whose turn is it?", svg:buildTurn(1), correct:"It's Alex's turn!",   wrong1:"It's Sam's turn!",     wrong2:"It's Michael's turn!"}
 ];
 
 // ── STATE ─────────────────────────────────────────────────────
